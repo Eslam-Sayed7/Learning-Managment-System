@@ -1,0 +1,66 @@
+/mvnw text eol=lf
+*.cmd text eol=crlf
+# IntelliJ IDEA-specific files
+.idea/
+*.iml
+*.iws
+
+# Logs
+logs/
+*.log
+
+# Target directory (Maven and Gradle builds)
+target/
+build/
+
+# Maven-specific files
+.mvn/
+!/.mvn/wrapper/maven-wrapper.jar
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+
+# Gradle-specific files
+.gradle/
+!gradle/wrapper/gradle-wrapper.jar
+*.gradle
+*.gradle.kts
+gradle-app.setting
+
+# Spring Boot-specific files
+spring.log
+*.pid
+*.tmp
+
+# Compiled class files
+*.class
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*.swo
+*.DS_Store
+
+# System files
+Thumbs.db
+ehthumbs.db
+*.class
+
+# Linux files
+*.out
+
+# Logs and Database files
+*.log
+*.sql
+*.sqlite
+
+# OS-specific
+.DS_Store
+desktop.ini
+
+# IDEs and Editors
+.vscode/
+*.code-workspace
