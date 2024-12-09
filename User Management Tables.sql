@@ -1,8 +1,30 @@
+--docker run -d \
+--            --name postgres_LMS_container \
+--            -e POSTGRES_USER=postgres \
+--            -e POSTGRES_PASSWORD=66c#Abi^Xqjj \
+--            -e POSTGRES_DB=LMSplatform \
+--            -p 5432:5432 \
+--            postgres
+
 -- Create the LMSplatform Database
 CREATE DATABASE LMSplatform;
 
 -- Connect to the LMSplatform Database
 \c LMSplatform;
+
+-- Roles Table
+CREATE TABLE roles (
+    role_id SERIAL PRIMARY KEY,
+    role_name VARCHAR(255) UNIQUE NOT NULL,
+    description VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Insert Initial Roles
+INSERT INTO roles (role_name, description) VALUES
+('ROLE_STUDENT', 'Standard user role'),
+('ROLE_INSTRUCTOR', 'Instructor role'),
+('ROLE_ADMIN', 'Administrator role');
 
 -- Users Table
 CREATE TABLE users (
@@ -13,17 +35,10 @@ CREATE TABLE users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     is_active BOOLEAN DEFAULT TRUE,
-	role_id INT, 
-    CONSTRAINT fk_role FOREIGN KEY (role_id) REFERENCES roles (role_id) ON DELETE SET NULL	
+	role_id INT,
+    CONSTRAINT fk_role FOREIGN KEY (role_id) REFERENCES roles (role_id) ON DELETE SET NULL
 );
 
--- Roles Table
-CREATE TABLE roles (
-    role_id SERIAL PRIMARY KEY,
-    role_name VARCHAR(255) UNIQUE NOT NULL,
-    description VARCHAR(255),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
 
 -- Students Table
 CREATE TABLE students (
@@ -146,11 +161,6 @@ CREATE INDEX idx_user_username ON users (username);
 CREATE INDEX idx_role_name ON roles (role_name);
 CREATE INDEX idx_course_name ON courses (course_name);
 
--- Insert Initial Roles
-INSERT INTO roles (role_name, description) VALUES 
-('ROLE_USER', 'Standard user role'),
-('ROLE_INSTRUCTOR', 'Instructor role'),
-('ROLE_ADMIN', 'Administrator role');
 
 -- Insert Example Assessment Types
 INSERT INTO assessment_types (type_name) VALUES 

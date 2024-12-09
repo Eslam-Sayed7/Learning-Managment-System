@@ -1,4 +1,4 @@
-package com.Java.LMS.platform.domain.Models;
+package com.Java.LMS.platform.service.dto;
 import jakarta.validation.constraints.NotBlank;
 
 public class LoginRequestModel {

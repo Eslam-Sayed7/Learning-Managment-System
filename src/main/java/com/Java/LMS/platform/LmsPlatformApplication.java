@@ -27,8 +27,8 @@ public class LmsPlatformApplication {
 
 	}
 
-	@Bean
-	CommandLineRunner testRunner(TestService testService) {
-		return args -> testService.testUserCreation();
-	}
+//	@Bean
+//	CommandLineRunner testRunner(TestService testService) {
+//		return args -> testService.testUserCreation();
+//	}
 }

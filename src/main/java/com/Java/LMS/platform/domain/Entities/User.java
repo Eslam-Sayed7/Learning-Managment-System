@@ -37,7 +37,6 @@ public class User {
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;
 
-    // setter and getters
     // Getters and Setters
 
     public Long getUserId() {
