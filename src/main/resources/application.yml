@@ -1,7 +1,6 @@
 server:
-
-    #address: localhost
-    #port: 8081
+    address: localhost
+    port: 8081
     error:
         include-message: always
         include-binding-errors: always
@@ -20,6 +19,6 @@ jpa:
             format_sql: true
     show-sql: true
 jwt:
-    secret: L7#k@!Xz&9P#HwQ$2gC8*MdN%RtBvY^UzWpE$A@Df&TG$4@J9*KhL
+    secret: ${lms_api_key}
     issuer: lms-platform # Optional, used to validate the token issuer
 #    expiration: 36000000 # Token expiration time in milliseconds (10 hours)
