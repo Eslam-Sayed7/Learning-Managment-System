@@ -1,10 +1,20 @@
+logging:
+    level:
+        org.springframework.web: DEBUG
+        org.springframework.security: DEBUG
+        org.springframework.boot.web.servlet.filter: DEBUG
+        org.springframework.boot: DEBUG
+
 server:
     address: localhost
     port: 8081
     error:
         include-message: always
         include-binding-errors: always
-
+    tomcat:
+        accesslog:
+            enabled: true
+            pattern: "%h %l %u %t \"%r\" %s %b"
 spring:
     datasource:
         url: jdbc:postgresql://localhost:5432/LMSplatform
@@ -20,5 +30,4 @@ jpa:
     show-sql: true
 jwt:
     secret: ${lms_api_key}
-    issuer: lms-platform # Optional, used to validate the token issuer
-#    expiration: 36000000 # Token expiration time in milliseconds (10 hours)
+    issuer: lms-platform

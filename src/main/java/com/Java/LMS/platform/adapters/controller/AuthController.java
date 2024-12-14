@@ -8,6 +8,7 @@ import com.Java.LMS.platform.infrastructure.repository.UserRepository;
 import com.Java.LMS.platform.service.dto.LoginRequestModel;
 import com.Java.LMS.platform.service.dto.RegisterRequestModel;
 import com.Java.LMS.platform.service.dto.LoginResponse;
+import jakarta.annotation.security.PermitAll;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,8 +45,10 @@ public class AuthController {
         this.jwtGenerator = jwtGenerator;
     }
 
+    @PermitAll
     @PostMapping("login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequestModel loginDto){
+
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         loginDto.getUsername(),

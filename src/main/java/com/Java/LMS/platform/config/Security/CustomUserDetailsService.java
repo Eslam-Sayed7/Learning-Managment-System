@@ -7,7 +7,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -16,7 +15,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 @Service
-public class CustomUserDetailsService  implements UserDetailsService {
+public class CustomUserDetailsService implements UserDetailsService {
 
     private UserRepository userRepository;
 
@@ -28,6 +27,11 @@ public class CustomUserDetailsService  implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("Username not found"));
+
+        if (user.getRole() == null) {
+            throw new IllegalStateException("Role is not assigned to the user");
+        }
+
         return new org.springframework.security.core.userdetails.User(
                 user.getUsername(),
                 user.getPassword(),
@@ -36,7 +40,10 @@ public class CustomUserDetailsService  implements UserDetailsService {
     }
 
     private Collection<GrantedAuthority> mapRoleToAuthority(Role role) {
+        // Ensure role is not null before proceeding
+        if (role == null || role.getRoleName() == null) {
+            throw new IllegalStateException("Role or role name is null");
+        }
         return Collections.singletonList(new SimpleGrantedAuthority(role.getRoleName()));
     }
-
 }

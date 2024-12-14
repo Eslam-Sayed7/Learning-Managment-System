@@ -46,4 +46,11 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
         }
         return null;
     }
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        // Exclude login endpoint from filtering
+        String path = request.getRequestURI();
+        return path.equals("/api/auth/login");
+    }
+
 }
