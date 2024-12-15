@@ -48,7 +48,6 @@ public class AuthController {
     @PermitAll
     @PostMapping("login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequestModel loginDto){
-
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         loginDto.getUsername(),
@@ -60,18 +59,16 @@ public class AuthController {
     }
 
     @Transactional
-    @PostMapping("register")
-    public ResponseEntity<?> register(@RequestBody RegisterRequestModel registerDto) {
+    @PostMapping("register") public ResponseEntity<?> register(@RequestBody RegisterRequestModel registerDto) {
         var checkUser = userRepository.findByUsername(registerDto.getUsername());
         if(checkUser.isPresent()){
             return new ResponseEntity<>("Username is taken!", HttpStatus.BAD_REQUEST);
         }
-
         User user = new User();
         user.setUsername(registerDto.getUsername());
         user.setPassword(passwordEncoder.encode((registerDto.getPassword())));
         user.setEmail(registerDto.getEmail());
-        Role role = roleRepository.findByRoleName("ROLE_STUDENT");
+        Role role = roleRepository.findByRoleName("ROLE_INSTRUCTOR");
         user.setRole(role);
         userRepository.save(user);
         return new ResponseEntity<>("User registered success!",  HttpStatus.OK);

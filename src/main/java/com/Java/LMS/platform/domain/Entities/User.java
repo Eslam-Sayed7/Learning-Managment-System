@@ -10,6 +10,15 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class User {
+//        user_id SERIAL PRIMARY KEY,
+//    username VARCHAR(255) UNIQUE NOT NULL,
+//    email VARCHAR(255) UNIQUE NOT NULL,
+//    password VARCHAR(255) NOT NULL,
+//    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+//    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+//    is_active BOOLEAN DEFAULT TRUE,
+//	role_id INT,
+//    CONSTRAINT fk_role FOREIGN KEY (role_id) REFERENCES roles (role_id) ON DELETE SET NULL
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

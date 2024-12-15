@@ -1,4 +1,4 @@
---docker run -d \
+-- docker run -d \
 --            --name postgres_LMS_container \
 --            -e POSTGRES_USER=postgres \
 --            -e POSTGRES_PASSWORD=66c#Abi^Xqjj \
@@ -67,19 +67,31 @@ CREATE TABLE admins (
 );
 
 -- Courses Table
-CREATE TABLE courses (
+CREATE TABLE course (
     course_id SERIAL PRIMARY KEY,
     course_name VARCHAR(255) NOT NULL,
     description TEXT,
     instructor_id INT REFERENCES instructors(instructor_id) ON DELETE SET NULL
 );
 
+-- Enrollments Table
+CREATE TABLE enrollments (
+    enrollment_id SERIAL PRIMARY KEY,
+    student_id INT REFERENCES students(student_id) ON DELETE CASCADE,
+    course_id INT REFERENCES course(course_id) ON DELETE CASCADE,
+    enrollment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(student_id, course_id)
+);
+
+
 -- Lessons Table
 CREATE TABLE lessons (
     lesson_id SERIAL PRIMARY KEY,
-    course_id INT REFERENCES courses(course_id) ON DELETE CASCADE,
+    course_id INT REFERENCES course(course_id) ON DELETE CASCADE,
+    lesson_name VARCHAR(255) NOT NULL,
     lesson_date TIMESTAMP NOT NULL,
     otp VARCHAR(6),
+    otp_expiration TIMESTAMP,
     is_active BOOLEAN DEFAULT TRUE
 );
 
@@ -89,6 +101,7 @@ CREATE TABLE attendance (
     student_id INT REFERENCES students(student_id) ON DELETE CASCADE,
     lesson_id INT REFERENCES lessons(lesson_id) ON DELETE CASCADE,
     otp_entered VARCHAR(6),
+    is_verified BOOLEAN DEFAULT FALSE,
     attendance_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -101,7 +114,7 @@ CREATE TABLE assessment_types (
 -- Assessments Table
 CREATE TABLE assessments (
     assessment_id SERIAL PRIMARY KEY,
-    course_id INT REFERENCES courses(course_id) ON DELETE CASCADE,
+    course_id INT REFERENCES course(course_id) ON DELETE CASCADE,
     type_id INT REFERENCES assessment_types(assessment_type_id),
     name VARCHAR(255) NOT NULL,
     description TEXT,
@@ -139,7 +152,7 @@ CREATE TABLE submissions (
 CREATE TABLE progress_tracking (
     progress_id SERIAL PRIMARY KEY,
     student_id INT REFERENCES students(student_id) ON DELETE CASCADE,
-    course_id INT REFERENCES courses(course_id) ON DELETE CASCADE,
+    course_id INT REFERENCES course(course_id) ON DELETE CASCADE,
     quiz_scores JSONB,
     assignments_submitted INT DEFAULT 0,
     attendance_count INT DEFAULT 0,
@@ -159,7 +172,7 @@ CREATE TABLE notifications (
 CREATE INDEX idx_user_email ON users (email);
 CREATE INDEX idx_user_username ON users (username);
 CREATE INDEX idx_role_name ON roles (role_name);
-CREATE INDEX idx_course_name ON courses (course_name);
+CREATE INDEX idx_course_name ON course (course_name);
 
 
 -- Insert Example Assessment Types
