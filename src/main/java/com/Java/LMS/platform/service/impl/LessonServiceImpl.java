@@ -96,4 +96,14 @@ public class LessonServiceImpl implements LessonService {
         // Fetch lesson by ID
         return lessonRepository.findById(lessonId);
     }
+    @Override
+    public boolean isLessonFound(Long courseId, String lessonName) {
+        if (courseId == null || lessonName == null || lessonName.isEmpty()) {
+            throw new IllegalArgumentException("Course ID and Lesson Name are required.");
+        }
+
+        // Use repository to check if lesson exists
+        return lessonRepository.findLessonByCourseIdAndName(courseId, lessonName).isPresent();
+    }
+
 }

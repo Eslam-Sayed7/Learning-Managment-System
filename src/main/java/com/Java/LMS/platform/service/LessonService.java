@@ -11,4 +11,6 @@ public interface LessonService {
     boolean recordAttendance(Long lessonId, String otp, Long studentId);
 
     Optional<Lesson> getLessonById(Long lessonId);
+    boolean isLessonFound(Long courseId, String lessonName);
+
 }

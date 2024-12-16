@@ -3,12 +3,23 @@ package com.Java.LMS.platform.domain.Entities;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+//CREATE TABLE lessons (
+//    lesson_id SERIAL PRIMARY KEY,
+//    course_id INT REFERENCES courses(course_id) ON DELETE CASCADE,
+//    lesson_name VARCHAR(255) NOT NULL,
+//    lesson_date TIMESTAMP NOT NULL,
+//    otp VARCHAR(6),
+//    otp_expiration TIMESTAMP,
+//    is_active BOOLEAN DEFAULT TRUE
+//);
+
 @Entity
 @Table(name = "lessons")
 public class Lesson {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "lesson_id")
     private Long id;
 
     @Column(name = "lesson_name", nullable = false)

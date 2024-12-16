@@ -80,8 +80,7 @@ public class UserServiceImpl implements UserService {
 
     private void syncStudent(User user, RegisterRequestModel registerDto) {
         Student student = new Student();
-        student.setUser(user);
-
+        student.setUserId(user.getUserId());
         // Create a valid JSON string
         String additionalInfo = "{\"key\": \"info\"}";
         student.setAdditionalInfo(additionalInfo);
