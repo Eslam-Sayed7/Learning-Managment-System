@@ -1,6 +1,6 @@
 package com.Java.LMS.platform.config.Security;
 
-import org.springframework.context.annotation.Bean;
+import com.Java.LMS.platform.service.impl.CustomUserDetailsService;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;

@@ -5,6 +5,7 @@ import com.Java.LMS.platform.domain.Entities.Role;
 import com.Java.LMS.platform.domain.Entities.User;
 import com.Java.LMS.platform.infrastructure.repository.RoleRepository;
 import com.Java.LMS.platform.infrastructure.repository.UserRepository;
+import com.Java.LMS.platform.service.UserService;
 import com.Java.LMS.platform.service.dto.LoginRequestModel;
 import com.Java.LMS.platform.service.dto.RegisterRequestModel;
 import com.Java.LMS.platform.service.dto.LoginResponse;
@@ -30,6 +31,7 @@ import java.util.Collections;
 public class AuthController {
 
     private AuthenticationManager authenticationManager;
+    private UserService userService;
     private UserRepository userRepository;
     private RoleRepository roleRepository;
     private PasswordEncoder passwordEncoder;
@@ -37,12 +39,13 @@ public class AuthController {
 
     @Autowired
     public AuthController(AuthenticationManager authenticationManager, UserRepository userRepository,
-                          RoleRepository roleRepository, PasswordEncoder passwordEncoder, JWTGenerator jwtGenerator) {
+                          UserService userService,RoleRepository roleRepository, PasswordEncoder passwordEncoder, JWTGenerator jwtGenerator) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtGenerator = jwtGenerator;
+        this.userService = userService;
     }
 
     @PermitAll
@@ -58,19 +61,14 @@ public class AuthController {
         return new ResponseEntity<>(new LoginResponse(token), HttpStatus.OK);
     }
 
-    @Transactional
-    @PostMapping("register") public ResponseEntity<?> register(@RequestBody RegisterRequestModel registerDto) {
-        var checkUser = userRepository.findByUsername(registerDto.getUsername());
-        if(checkUser.isPresent()){
-            return new ResponseEntity<>("Username is taken!", HttpStatus.BAD_REQUEST);
+   @Transactional
+    @PostMapping("register")
+    public ResponseEntity<?> register(@RequestBody RegisterRequestModel registerDto) {
+        try {
+            userService.registerUserAndSyncRole(registerDto);
+            return new ResponseEntity<>("User registered successfully!", HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
-        User user = new User();
-        user.setUsername(registerDto.getUsername());
-        user.setPassword(passwordEncoder.encode((registerDto.getPassword())));
-        user.setEmail(registerDto.getEmail());
-        Role role = roleRepository.findByRoleName("ROLE_INSTRUCTOR");
-        user.setRole(role);
-        userRepository.save(user);
-        return new ResponseEntity<>("User registered success!",  HttpStatus.OK);
     }
 }

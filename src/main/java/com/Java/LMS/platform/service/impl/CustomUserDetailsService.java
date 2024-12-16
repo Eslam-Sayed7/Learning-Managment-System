@@ -1,4 +1,4 @@
-package com.Java.LMS.platform.config.Security;
+package com.Java.LMS.platform.service.impl;
 
 import com.Java.LMS.platform.domain.Entities.Role;
 import com.Java.LMS.platform.domain.Entities.User;
@@ -22,6 +22,15 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Autowired
     public CustomUserDetailsService(UserRepository userRepository) {
         this.userRepository = userRepository;
+    }
+
+    public UserDetails loadUserById(Long Id) throws ExceptionInInitializerError {
+       User user = userRepository.findById(Id).orElseThrow(() -> new RuntimeException("User Not found"));
+        return new org.springframework.security.core.userdetails.User(
+                user.getUsername(),
+                user.getPassword(),
+                mapRoleToAuthority(user.getRole())
+        );
     }
 
     @Override

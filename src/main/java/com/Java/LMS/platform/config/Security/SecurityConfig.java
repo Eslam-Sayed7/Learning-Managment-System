@@ -1,4 +1,5 @@
 package com.Java.LMS.platform.config.Security;
+import com.Java.LMS.platform.service.impl.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

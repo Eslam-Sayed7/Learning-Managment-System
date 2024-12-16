@@ -22,7 +22,7 @@ CREATE TABLE roles (
 
 -- Insert Initial Roles
 INSERT INTO roles (role_name, description) VALUES
-('ROLE_STUDENT', 'Standard user role'),
+('ROLE_STUDENT', 'Student role'),
 ('ROLE_INSTRUCTOR', 'Instructor role'),
 ('ROLE_ADMIN', 'Administrator role');
 
@@ -38,7 +38,6 @@ CREATE TABLE users (
 	role_id INT,
     CONSTRAINT fk_role FOREIGN KEY (role_id) REFERENCES roles (role_id) ON DELETE SET NULL
 );
-
 
 -- Students Table
 CREATE TABLE students (
@@ -67,7 +66,7 @@ CREATE TABLE admins (
 );
 
 -- Courses Table
-CREATE TABLE course (
+CREATE TABLE courses (
     course_id SERIAL PRIMARY KEY,
     course_name VARCHAR(255) NOT NULL,
     description TEXT,
@@ -78,16 +77,15 @@ CREATE TABLE course (
 CREATE TABLE enrollments (
     enrollment_id SERIAL PRIMARY KEY,
     student_id INT REFERENCES students(student_id) ON DELETE CASCADE,
-    course_id INT REFERENCES course(course_id) ON DELETE CASCADE,
+    course_id INT REFERENCES courses(course_id) ON DELETE CASCADE,
     enrollment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(student_id, course_id)
 );
 
-
 -- Lessons Table
 CREATE TABLE lessons (
     lesson_id SERIAL PRIMARY KEY,
-    course_id INT REFERENCES course(course_id) ON DELETE CASCADE,
+    course_id INT REFERENCES courses(course_id) ON DELETE CASCADE,
     lesson_name VARCHAR(255) NOT NULL,
     lesson_date TIMESTAMP NOT NULL,
     otp VARCHAR(6),
@@ -114,7 +112,7 @@ CREATE TABLE assessment_types (
 -- Assessments Table
 CREATE TABLE assessments (
     assessment_id SERIAL PRIMARY KEY,
-    course_id INT REFERENCES course(course_id) ON DELETE CASCADE,
+    course_id INT REFERENCES courses(course_id) ON DELETE CASCADE,
     type_id INT REFERENCES assessment_types(assessment_type_id),
     name VARCHAR(255) NOT NULL,
     description TEXT,
@@ -152,7 +150,7 @@ CREATE TABLE submissions (
 CREATE TABLE progress_tracking (
     progress_id SERIAL PRIMARY KEY,
     student_id INT REFERENCES students(student_id) ON DELETE CASCADE,
-    course_id INT REFERENCES course(course_id) ON DELETE CASCADE,
+    course_id INT REFERENCES courses(course_id) ON DELETE CASCADE,
     quiz_scores JSONB,
     assignments_submitted INT DEFAULT 0,
     attendance_count INT DEFAULT 0,
@@ -172,11 +170,9 @@ CREATE TABLE notifications (
 CREATE INDEX idx_user_email ON users (email);
 CREATE INDEX idx_user_username ON users (username);
 CREATE INDEX idx_role_name ON roles (role_name);
-CREATE INDEX idx_course_name ON course (course_name);
-
+CREATE INDEX idx_course_name ON courses (course_name);
 
 -- Insert Example Assessment Types
-INSERT INTO assessment_types (type_name) VALUES 
+INSERT INTO assessment_types (type_name) VALUES
 ('Quiz'),
 ('Assignment');
-
