@@ -14,8 +14,8 @@ import org.springframework.stereotype.Service;
 public class EmailServiceImpl implements EmailService {
     private final JavaMailSender javaMailSender;
 
-//    @Value("${}")
-    private String fromEmail = "as3899282@gmail.com";
+    @Value("${EMAIL_USERNAME}")
+    private String fromEmail;
     public EmailServiceImpl(JavaMailSender javaMailSender) {
         this.javaMailSender = javaMailSender;
     }
