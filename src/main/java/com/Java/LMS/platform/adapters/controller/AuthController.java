@@ -6,6 +6,7 @@ import com.Java.LMS.platform.domain.Entities.User;
 import com.Java.LMS.platform.infrastructure.repository.RoleRepository;
 import com.Java.LMS.platform.infrastructure.repository.UserRepository;
 import com.Java.LMS.platform.service.EmailService;
+import com.Java.LMS.platform.service.UserService;
 import com.Java.LMS.platform.service.dto.LoginRequestModel;
 import com.Java.LMS.platform.service.dto.RegisterRequestModel;
 import com.Java.LMS.platform.service.dto.LoginResponse;
@@ -34,22 +35,24 @@ public class AuthController {
     private final PasswordEncoder passwordEncoder;
     private final JWTGenerator jwtGenerator;
     private final EmailService emailService;
+    private final UserService userService;
 
     @Autowired
     public AuthController(AuthenticationManager authenticationManager, UserRepository userRepository,
-                          EmailService emailService,RoleRepository roleRepository, PasswordEncoder passwordEncoder, JWTGenerator jwtGenerator) {
+                          EmailService emailService,RoleRepository roleRepository, PasswordEncoder passwordEncoder,
+                          JWTGenerator jwtGenerator ,UserService userService) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtGenerator = jwtGenerator;
         this.emailService = emailService;
+        this.userService = userService;
     }
 
     @PermitAll
     @PostMapping("login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequestModel loginDto){
-
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         loginDto.getUsername(),
@@ -60,22 +63,14 @@ public class AuthController {
         return new ResponseEntity<>(new LoginResponse(token), HttpStatus.OK);
     }
 
-    @Transactional
+   @Transactional
     @PostMapping("register")
     public ResponseEntity<?> register(@RequestBody RegisterRequestModel registerDto) {
-        var checkUser = userRepository.findByUsername(registerDto.getUsername());
-        if(checkUser.isPresent()){
-            return new ResponseEntity<>("Username is taken!", HttpStatus.BAD_REQUEST);
+        try {
+            userService.registerUserAndSyncRole(registerDto);
+            return new ResponseEntity<>("User registered successfully!", HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
-
-        User user = new User();
-        user.setUsername(registerDto.getUsername());
-        user.setPassword(passwordEncoder.encode((registerDto.getPassword())));
-        user.setEmail(registerDto.getEmail());
-        Role role = roleRepository.findByRoleName("ROLE_USER");
-        user.setRole(role);
-        userRepository.save(user);
-        emailService.sendSimpleMailMessage(user.getUsername() , user.getEmail());
-        return new ResponseEntity<>("User registered success!",  HttpStatus.OK);
     }
 }

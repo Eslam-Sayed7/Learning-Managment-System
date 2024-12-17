@@ -4,7 +4,7 @@
 //import com.Java.LMS.platform.domain.Entities.User;
 //import com.Java.LMS.platform.infrastructure.repository.RoleRepository;
 //import com.Java.LMS.platform.infrastructure.repository.UserRepository;
-//import com.Java.LMS.platform.config.Security.CustomUserDetailsService;
+//import com.Java.LMS.platform.service.impl.CustomUserDetailsService;
 //import org.junit.jupiter.api.Test;
 //import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.boot.test.context.SpringBootTest;

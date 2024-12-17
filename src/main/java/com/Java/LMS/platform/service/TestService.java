@@ -22,7 +22,7 @@ public class TestService {
     }
 
     public void testUserCreation() {
-        Role userRole = roleRepository.findByRoleName("ROLE_USER");
+        Role userRole = roleRepository.findByRoleName("ROLE_STUDENT");
 
         User newUser = new User();
         newUser.setUsername("testuser");
@@ -37,4 +37,5 @@ public class TestService {
 
         System.out.println("User created successfully!");
     }
+
 }

@@ -16,7 +16,6 @@ import jakarta.validation.constraints.Size;
         @NotBlank(message = "Role name is required")
         private String roleName;
 
-        // Getters and setters
         // Getters and Setters
         public String getUsername() {
             return username;

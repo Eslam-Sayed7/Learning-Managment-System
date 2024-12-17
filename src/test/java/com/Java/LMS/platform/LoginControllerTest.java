@@ -2,7 +2,7 @@
 ////package com.Java.LMS.platform.api.controllers;
 //
 //import com.Java.LMS.platform.adapters.controller.AuthController;
-//import com.Java.LMS.platform.config.Security.CustomUserDetailsService;
+//import com.Java.LMS.platform.service.impl.CustomUserDetailsService;
 //import org.junit.jupiter.api.Test;
 //import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.boot.test.context.SpringBootTest;

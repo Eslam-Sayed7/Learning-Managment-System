@@ -7,7 +7,7 @@ HOST: http://localhost:${SERVER_PORT}
 
 spring:
     datasource:
-        url: jdbc:postgresql://localhost:5432/LMSplatform
+        url: jdbc:postgresql://localhost:5432/LMSplatform?stringtype=unspecified
         username: postgres
         password: 66c#Abi^Xqjj
     jpa:
