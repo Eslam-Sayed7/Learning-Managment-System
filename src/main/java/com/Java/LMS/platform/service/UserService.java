@@ -1,8 +1,12 @@
 package com.Java.LMS.platform.service;
 
-import com.Java.LMS.platform.domain.Entities.User;
-import com.Java.LMS.platform.service.dto.RegisterRequestModel;
+import com.Java.LMS.platform.service.dto.Auth.AuthServiceResult;
+import com.Java.LMS.platform.service.dto.Auth.RegisterRequestModel;
 
 public interface UserService {
-    void registerUserAndSyncRole(RegisterRequestModel registerRequestModel);
+    AuthServiceResult registerUserAndSyncRole(RegisterRequestModel registerRequestModel);
+    // TODO
+//    boolean changePassword(ChangePasswordRequestModel changePasswordRequestModel);
+//    boolean changeMail(ChangeMailRequestModel changeMailRequestModel);
+//    boolean changeUserName(ChangeUserNameRequestModel changeUserNameRequestModel);
 }

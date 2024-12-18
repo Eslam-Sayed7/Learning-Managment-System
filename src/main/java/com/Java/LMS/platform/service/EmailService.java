@@ -1,7 +1,7 @@
 package com.Java.LMS.platform.service;
 
 public  interface EmailService {
-    void sendSimpleMailMessage(String name , String to);
+    void sendRegisterEmail(String to);
 //    void sendMimeMessageWithAttachments(String name , String to , String token);
 //    void sendMimeMessageWithEmbeddedImages(String name , String to , String token);
 //    void sendMimeMessageWithEmbeddedFiles(String name , String to , String token);

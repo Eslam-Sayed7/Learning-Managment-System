@@ -1,15 +1,14 @@
 package com.Java.LMS.platform.adapters.controller;
 
 import com.Java.LMS.platform.config.Security.JWTGenerator;
-import com.Java.LMS.platform.domain.Entities.Role;
-import com.Java.LMS.platform.domain.Entities.User;
 import com.Java.LMS.platform.infrastructure.repository.RoleRepository;
 import com.Java.LMS.platform.infrastructure.repository.UserRepository;
 import com.Java.LMS.platform.service.EmailService;
 import com.Java.LMS.platform.service.UserService;
-import com.Java.LMS.platform.service.dto.LoginRequestModel;
-import com.Java.LMS.platform.service.dto.RegisterRequestModel;
-import com.Java.LMS.platform.service.dto.LoginResponse;
+import com.Java.LMS.platform.service.dto.Auth.AuthServiceResult;
+import com.Java.LMS.platform.service.dto.Auth.LoginRequestModel;
+import com.Java.LMS.platform.service.dto.Auth.RegisterRequestModel;
+import com.Java.LMS.platform.service.dto.Auth.LoginResponse;
 import jakarta.annotation.security.PermitAll;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -65,12 +64,19 @@ public class AuthController {
 
    @Transactional
     @PostMapping("register")
-    public ResponseEntity<?> register(@RequestBody RegisterRequestModel registerDto) {
+    public ResponseEntity<AuthServiceResult> register(@RequestBody RegisterRequestModel registerDto) {
+        AuthServiceResult result = new AuthServiceResult();
         try {
-            userService.registerUserAndSyncRole(registerDto);
-            return new ResponseEntity<>("User registered successfully!", HttpStatus.OK);
+            result = userService.registerUserAndSyncRole(registerDto);
+            if (result.isResultState()){
+                // uncomment if you have the right yml file with the service crendtial
+//                emailService.sendRegisterEmail(registerDto.getEmail());
+                result.setMessage("Registered successfully");
+                return new ResponseEntity<AuthServiceResult>(result , HttpStatus.OK);
+            }
         } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+            result.setMessage(e.getMessage());
         }
-    }
+        return new ResponseEntity<AuthServiceResult> ( result , HttpStatus.BAD_REQUEST);
+   }
 }

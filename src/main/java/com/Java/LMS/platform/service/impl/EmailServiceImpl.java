@@ -22,7 +22,7 @@ public class EmailServiceImpl implements EmailService {
 
     @Async
     @Override
-    public void sendSimpleMailMessage(String name, String to) {
+    public void sendRegisterEmail(String to) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setSubject("New User Account Verification");
