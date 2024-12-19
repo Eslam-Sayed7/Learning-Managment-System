@@ -20,6 +20,7 @@ public class Enrollment {
     @Column(name = "enrollment_date", nullable = false)
     private LocalDateTime enrollmentDate = LocalDateTime.now();
 
+
     // Getters and Setters
     public Long getEnrollmentId() {
         return enrollmentId;
@@ -52,5 +53,6 @@ public class Enrollment {
     public void setEnrollmentDate(LocalDateTime enrollmentDate) {
         this.enrollmentDate = enrollmentDate;
     }
+
 }
 

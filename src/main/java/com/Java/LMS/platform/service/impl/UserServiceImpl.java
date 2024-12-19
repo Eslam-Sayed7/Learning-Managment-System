@@ -92,15 +92,13 @@ public class UserServiceImpl implements UserService {
             return result;
         }
     }
+    private void syncStudent(User user, RegisterRequestModel registerDto) {
+        Student student = new Student();
+        student.setUserId(user.getUserId());
+        // Create a valid JSON string
+        String additionalInfo = "{\"key\": \"info\"}";
+        student.setAdditionalInfo(additionalInfo);
 
-    private boolean syncStudent(User user, RegisterRequestModel registerDto) {
-        try {
-            Student student = new Student();
-            student.setUser(user);
-
-            // Create a valid JSON string
-            String additionalInfo = "{\"key\": \"info\"}";
-            student.setAdditionalInfo(additionalInfo);
 
             student.setMajor("MAJOR");
             student.setYearOfStudy(3);

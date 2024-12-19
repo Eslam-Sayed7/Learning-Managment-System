@@ -1,77 +1,84 @@
 package com.Java.LMS.platform.domain.Entities;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Entity
 @Table(name = "students")
 @NoArgsConstructor
 @AllArgsConstructor
 public class Student {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long StudentId;
+    @Column(name = "student_id")
+    private Long studentId;
 
     // Foreign key (userId)
-    @OneToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "userId", nullable = false, unique = true)
-    private User User;
+    @Column(name = "user_id", nullable = false, unique = true)
+    private Long userId;
 
-    private String Major;
-    private Integer YearOfStudy;
+    @Column(name = "major")
+    private String major;
+
+    @Column(name = "year_of_study")
+    private Integer yearOfStudy;
 
     @Column(name = "additional_info", columnDefinition = "jsonb")
-    private String AdditionalInfo;
+    private String additionalInfo;
 
-    // OneToOne
-//    @Column(name = "user_id", unique = true)
-//    private Long UserId;
+    @ManyToMany(mappedBy = "students")
+    private List<Course> courses;
 
+    public List<Course> getCourses() {
+        return courses;
+    }
+
+    public void setCourses(List<Course> courses) {
+        this.courses = courses;
+    }
+
+    // Getters and Setters
     public Long getStudentId() {
-        return StudentId;
+        return studentId;
     }
 
     public void setStudentId(Long studentId) {
-        StudentId = studentId;
+        this.studentId = studentId;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     public String getMajor() {
-        return Major;
+        return major;
     }
 
     public void setMajor(String major) {
-        Major = major;
+        this.major = major;
     }
 
     public Integer getYearOfStudy() {
-        return YearOfStudy;
+        return yearOfStudy;
     }
 
     public void setYearOfStudy(Integer yearOfStudy) {
-        YearOfStudy = yearOfStudy;
+        this.yearOfStudy = yearOfStudy;
     }
 
     public String getAdditionalInfo() {
-        return AdditionalInfo;
+        return additionalInfo;
     }
 
     public void setAdditionalInfo(String additionalInfo) {
-        AdditionalInfo = additionalInfo;
+        this.additionalInfo = additionalInfo;
     }
-
-    public User getUser() {
-        return User;
-    }
-
-    public void setUser(User user) {
-        User = user;
-    }
-
-//    public Long getUserId() {
-//        return UserId;
-//    }
-//
-//    public void setUserId(Long userId) {
-//        UserId = userId;
-//    }
 }
