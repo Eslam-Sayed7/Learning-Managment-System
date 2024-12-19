@@ -1,5 +1,6 @@
 package com.Java.LMS.platform.domain.Entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 @Entity
@@ -13,13 +14,14 @@ public class Questions {
 
     @ManyToOne
     @JoinColumn(name = "assessment_id", nullable = false)
+    @JsonIgnore
     private Assessment assessment;
 
     @Column(name = "question_text")
-    private String questionText;
+    private String question_text;
 
     @Column(name = "question_type")
-    private String questionType;
+    private String question_type;
 
     // Getters and Setters
     public Long getId() {
@@ -39,18 +41,18 @@ public class Questions {
     }
 
     public String getQuestionText() {
-        return questionText;
+        return question_text;
     }
 
     public void setQuestionText(String questionText) {
-        this.questionText = questionText;
+        this.question_text = questionText;
     }
 
     public String getQuestionType() {
-        return questionType;
+        return question_type;
     }
 
     public void setQuestionType(String questionType) {
-        this.questionType = questionType;
+        this.question_type = questionType;
     }
 }
