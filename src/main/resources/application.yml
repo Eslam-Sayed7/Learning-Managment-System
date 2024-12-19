@@ -1,33 +1,62 @@
-logging:
-    level:
-        org.springframework.web: DEBUG
-        org.springframework.security: DEBUG
-        org.springframework.boot.web.servlet.filter: DEBUG
-        org.springframework.boot: DEBUG
+# Email Configuration
+EMAIL_HOST: smtp.gmail.com
+EMAIL_PORT: 587
+EMAIL_ID: ${EMAIL}
+EMAIL_PASSWORD: ${PASSWORD}
+HOST: http://localhost:${SERVER_PORT}
 
-server:
-    address: localhost
-    port: 8081
-    error:
-        include-message: always
-        include-binding-errors: always
-    tomcat:
-        accesslog:
-            enabled: true
-            pattern: "%h %l %u %t \"%r\" %s %b"
 spring:
     datasource:
         url: jdbc:postgresql://localhost:5432/LMSplatform?stringtype=unspecified
         username: postgres
         password: 66c#Abi^Xqjj
-jpa:
-    hibernate:
-        ddl-auto: update
-    properties:
+    jpa:
         hibernate:
+            ddl-auto: update
             dialect: org.hibernate.dialect.PostgreSQLDialect
             format_sql: true
-    show-sql: true
-jwt:
-    secret: ${lms_api_key}
-    issuer: lms-platform
+        properties:
+            hibernate:
+                format_sql: true
+        show-sql: true
+    jwt:
+        secret: ${lms_api_key}
+        issuer: lms-platform
+    logging:
+        level:
+            org.springframework.web: DEBUG
+            org.springframework: DEBUG
+            org.springframework.boot.autoconfigure.mail: DEBUG
+            org.springframework.security: DEBUG
+            org.springframework.boot.web.servlet.filter: DEBUG
+            org.springframework.boot: DEBUG
+    server:
+        address: localhost
+        port: 8081
+        error:
+            include-message: always
+            include-binding-errors: always
+        tomcat:
+            accesslog:
+                enabled: true
+                pattern: "%h %l %u %t \"%r\" %s %b"
+    mail:
+        host: smtp.gmail.com
+        port: ${EMAIL_PORT}
+        username: ${EMAIL}
+        password: ${PASSWORD}
+        default-encoding: UTF-8
+        properties:
+            mail:
+                mime:
+                    charset: UTF
+                smtp:
+                    write-timeout: 10000
+                    connection-timeout: 10000
+                    timeout: 10000
+                    auth: true
+                    starttls:
+                        enable: true
+                        required: true
+        verify:
+            host: ${VERIFY_EMAIL_HOST}

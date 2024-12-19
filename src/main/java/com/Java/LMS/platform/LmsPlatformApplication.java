@@ -8,6 +8,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 
 //
 //@SpringBootApplication(exclude = {
@@ -16,6 +17,7 @@ import org.springframework.context.annotation.Bean;
 //})
 
 @SpringBootApplication
+@ComponentScan(basePackages = {"com.Java.LMS.platform"})
 public class LmsPlatformApplication {
 
 	public static void main(String[] args) {

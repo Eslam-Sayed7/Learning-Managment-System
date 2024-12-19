@@ -35,7 +35,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))  // Stateless session
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll()  // Public endpoints
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**" ,"/api/auth/**").permitAll()  // Public endpoints
                         .anyRequest().authenticated()  // Secure all other endpoints
                 )
                 .exceptionHandling(exception -> exception

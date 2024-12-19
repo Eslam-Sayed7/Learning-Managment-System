@@ -1,4 +1,4 @@
-package com.Java.LMS.platform.service.dto;
+package com.Java.LMS.platform.service.dto.Auth;
 
 public class LoginResponse {
 

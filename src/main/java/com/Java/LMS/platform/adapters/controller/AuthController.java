@@ -1,14 +1,14 @@
 package com.Java.LMS.platform.adapters.controller;
 
 import com.Java.LMS.platform.config.Security.JWTGenerator;
-import com.Java.LMS.platform.domain.Entities.Role;
-import com.Java.LMS.platform.domain.Entities.User;
 import com.Java.LMS.platform.infrastructure.repository.RoleRepository;
 import com.Java.LMS.platform.infrastructure.repository.UserRepository;
+import com.Java.LMS.platform.service.EmailService;
 import com.Java.LMS.platform.service.UserService;
-import com.Java.LMS.platform.service.dto.LoginRequestModel;
-import com.Java.LMS.platform.service.dto.RegisterRequestModel;
-import com.Java.LMS.platform.service.dto.LoginResponse;
+import com.Java.LMS.platform.service.dto.Auth.AuthServiceResult;
+import com.Java.LMS.platform.service.dto.Auth.LoginRequestModel;
+import com.Java.LMS.platform.service.dto.Auth.RegisterRequestModel;
+import com.Java.LMS.platform.service.dto.Auth.LoginResponse;
 import jakarta.annotation.security.PermitAll;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,27 +24,28 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Collections;
-
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
 
-    private AuthenticationManager authenticationManager;
-    private UserService userService;
-    private UserRepository userRepository;
-    private RoleRepository roleRepository;
-    private PasswordEncoder passwordEncoder;
-    private JWTGenerator jwtGenerator;
+    private final AuthenticationManager authenticationManager;
+    private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JWTGenerator jwtGenerator;
+    private final EmailService emailService;
+    private final UserService userService;
 
     @Autowired
     public AuthController(AuthenticationManager authenticationManager, UserRepository userRepository,
-                          UserService userService,RoleRepository roleRepository, PasswordEncoder passwordEncoder, JWTGenerator jwtGenerator) {
+                          EmailService emailService,RoleRepository roleRepository, PasswordEncoder passwordEncoder,
+                          JWTGenerator jwtGenerator ,UserService userService) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtGenerator = jwtGenerator;
+        this.emailService = emailService;
         this.userService = userService;
     }
 
@@ -63,12 +64,19 @@ public class AuthController {
 
    @Transactional
     @PostMapping("register")
-    public ResponseEntity<?> register(@RequestBody RegisterRequestModel registerDto) {
+    public ResponseEntity<AuthServiceResult> register(@RequestBody RegisterRequestModel registerDto) {
+        AuthServiceResult result = new AuthServiceResult();
         try {
-            userService.registerUserAndSyncRole(registerDto);
-            return new ResponseEntity<>("User registered successfully!", HttpStatus.OK);
+            result = userService.registerUserAndSyncRole(registerDto);
+            if (result.isResultState()){
+                // uncomment if you have the right yml file with the service crendtial
+//                emailService.sendRegisterEmail(registerDto.getEmail());
+                result.setMessage("Registered successfully");
+                return new ResponseEntity<AuthServiceResult>(result , HttpStatus.OK);
+            }
         } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+            result.setMessage(e.getMessage());
         }
-    }
+        return new ResponseEntity<AuthServiceResult> ( result , HttpStatus.BAD_REQUEST);
+   }
 }
