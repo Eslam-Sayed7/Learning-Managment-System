@@ -24,7 +24,6 @@ public class LmsPlatformApplication {
 		var context = SpringApplication.run(LmsPlatformApplication.class, args);
 		TestClass testclass = context.getBean(TestClass.class);
 		System.out.println(testclass.sayHello());
-
 	}
 
 //	@Bean

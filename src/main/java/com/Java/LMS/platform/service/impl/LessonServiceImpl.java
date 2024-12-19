@@ -8,9 +8,14 @@ import com.Java.LMS.platform.service.LessonService;
 import com.Java.LMS.platform.service.dto.LessonRequestModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
@@ -27,21 +32,14 @@ public class LessonServiceImpl implements LessonService {
     }
 
     @Override
-    public Lesson createLesson(Long courseId, LessonRequestModel request) {
-        if (request.getLessonName() == null || request.getLessonName().isEmpty()) {
+    public Lesson createLesson(Lesson lesson) {
+        if (lesson.getLessonName() == null || lesson.getLessonName().isEmpty()) {
             throw new IllegalArgumentException("Lesson name is required.");
         }
-        if (courseId == null) {
+        if (lesson.getCourseId() == null) {
             throw new IllegalArgumentException("Course ID is required.");
         }
-
-        // Create and save lesson
-        Lesson lesson = new Lesson();
-        lesson.setLessonName(request.getLessonName());
-        lesson.setCourse_id(courseId);
-        lesson.setLessonDate(request.getLessonDate() != null ? request.getLessonDate() : LocalDateTime.now());
         lesson.setActive(true);
-
         return lessonRepository.save(lesson);
     }
 
@@ -104,6 +102,31 @@ public class LessonServiceImpl implements LessonService {
 
         // Use repository to check if lesson exists
         return lessonRepository.findLessonByCourseIdAndName(courseId, lessonName).isPresent();
+    }
+    @Override
+    public boolean deleteLesson(Long lessonId) {
+        // Fetch the lesson by ID
+        Optional<Lesson> lesson = lessonRepository.findById(lessonId);
+
+        if (lesson.isPresent()) {
+            // Delete the lesson
+            LessonService.deleteFile(lesson.get().getFileUrl());
+            lessonRepository.delete(lesson.get());
+            return true;
+        } else {
+            // Lesson not found
+            throw new IllegalArgumentException("Lesson with ID " + lessonId + " not found.");
+        }
+    }
+
+    @Override
+    public List<Lesson> getLessonsByCourseId(Long courseId) {
+        if (courseId == null) {
+            throw new IllegalArgumentException("Course ID is required.");
+        }
+
+        // Fetch lessons by course ID
+        return lessonRepository.findLessonsByCourseId(courseId);
     }
 
 }

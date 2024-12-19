@@ -137,4 +137,15 @@ public class CourseServiceImpl implements CourseService {
 
         return true; // Student successfully removed
     }
+
+    public boolean deleteCourse(Long courseId){
+        // Check if the course exists
+        Optional<Course> courseOptional = courseRepository.getCourseByCourseId(courseId);
+        if (courseOptional.isEmpty()) {
+            throw new IllegalArgumentException("Course with ID " + courseId + " not found");
+        }
+        // Delete the course
+        courseRepository.deleteCourseByCourseId(courseId);
+        return true; // Course successfully deleted
+    }
 }

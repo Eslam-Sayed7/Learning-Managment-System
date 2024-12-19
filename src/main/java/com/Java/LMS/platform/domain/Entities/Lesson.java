@@ -3,16 +3,6 @@ package com.Java.LMS.platform.domain.Entities;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
-//CREATE TABLE lessons (
-//    lesson_id SERIAL PRIMARY KEY,
-//    course_id INT REFERENCES courses(course_id) ON DELETE CASCADE,
-//    lesson_name VARCHAR(255) NOT NULL,
-//    lesson_date TIMESTAMP NOT NULL,
-//    otp VARCHAR(6),
-//    otp_expiration TIMESTAMP,
-//    is_active BOOLEAN DEFAULT TRUE
-//);
-
 @Entity
 @Table(name = "lessons")
 public class Lesson {
@@ -38,10 +28,13 @@ public class Lesson {
     private boolean isActive = true;
 
     @Column(name = "course_id", nullable = false)
-    private Long course_id;
-//    @ManyToOne
-//    @JoinColumn(name = "course_id")
-//    private Course course;
+    private Long courseId;
+
+    @Column(name = "lesson_type", nullable = false)
+    private String lessonType;
+
+    @Column(name = "file_url")
+    private String fileUrl;
 
     // Getters and Setters
 
@@ -93,12 +86,27 @@ public class Lesson {
         isActive = active;
     }
 
-    public Long getCourse_id() {
-        return course_id;
+    public Long getCourseId() {
+        return courseId;
     }
 
-    public void setCourse_id(Long course_id) {
-        this.course_id = course_id;
+    public void setCourseId(Long courseId) {
+        this.courseId = courseId;
     }
 
+    public String getLessonType() {
+        return lessonType;
+    }
+
+    public void setLessonType(String lessonType) {
+        this.lessonType = lessonType;
+    }
+
+    public String getFileUrl() {
+        return fileUrl;
+    }
+
+    public void setFileUrl(String fileUrl) {
+        this.fileUrl = fileUrl;
+    }
 }
