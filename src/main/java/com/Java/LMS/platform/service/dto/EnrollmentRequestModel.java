@@ -15,6 +15,8 @@ public class EnrollmentRequestModel {
     private Long courseId;
     private LocalDateTime enrollment_date;
 
+    private Long userId;
+
     public Long getStudentId() {
         return studentId;
     }
@@ -37,5 +39,13 @@ public class EnrollmentRequestModel {
 
     public void setEnrollment_date(LocalDateTime enrollment_date) {
         this.enrollment_date = enrollment_date;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 }

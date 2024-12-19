@@ -90,7 +90,9 @@ CREATE TABLE lessons (
     lesson_date TIMESTAMP NOT NULL,
     otp VARCHAR(6),
     otp_expiration TIMESTAMP,
-    is_active BOOLEAN DEFAULT TRUE
+    is_active BOOLEAN DEFAULT TRUE,
+    lesson_type VARCHAR(10) CHECK (lesson_type IN ('PDF', 'Video')) NOT NULL, -- Specify type: PDF or Video
+    file_url TEXT -- Store the URL for the PDF or Video
 );
 
 -- Attendance Table

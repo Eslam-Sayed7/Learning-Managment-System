@@ -9,5 +9,5 @@ import java.util.Optional;
 @Repository
 public interface AdminRepository extends JpaRepository<Admin, Long> {
     @Override
-    Optional<Admin> findById(Long aLong);
+    Optional<Admin> findById(Long adminId);
 }

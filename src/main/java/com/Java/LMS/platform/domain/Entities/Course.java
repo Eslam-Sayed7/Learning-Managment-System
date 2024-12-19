@@ -1,8 +1,10 @@
 package com.Java.LMS.platform.domain.Entities;
 
 import jakarta.persistence.*;
+import java.util.List;
 
 @Entity
+@Table(name = "courses")
 public class Course {
 
     @Id
@@ -17,6 +19,14 @@ public class Course {
 
     @Column(name = "instructor_id")
     private Long instructorId;
+
+    @ManyToMany
+    @JoinTable(
+            name = "enrollments",
+            joinColumns = @JoinColumn(name = "course_id"),
+            inverseJoinColumns = @JoinColumn(name = "student_id")
+    )
+    private List<Student> students;
 
     // Getters and Setters
 
@@ -50,5 +60,13 @@ public class Course {
 
     public void setInstructorId(Long instructorId) {
         this.instructorId = instructorId;
+    }
+
+    public List<Student> getStudents() {
+        return students;
+    }
+
+    public void setStudents(List<Student> students) {
+        this.students = students;
     }
 }
