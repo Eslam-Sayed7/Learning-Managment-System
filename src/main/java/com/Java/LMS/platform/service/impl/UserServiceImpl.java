@@ -1,15 +1,7 @@
 package com.Java.LMS.platform.service.impl;
 
-import com.Java.LMS.platform.domain.Entities.User;
-import com.Java.LMS.platform.domain.Entities.Role;
-import com.Java.LMS.platform.domain.Entities.Student;
-import com.Java.LMS.platform.domain.Entities.Admin;
-import com.Java.LMS.platform.domain.Entities.Instructor;
-import com.Java.LMS.platform.infrastructure.repository.RoleRepository;
-import com.Java.LMS.platform.infrastructure.repository.UserRepository;
-import com.Java.LMS.platform.infrastructure.repository.AdminRepository;
-import com.Java.LMS.platform.infrastructure.repository.InstructorRepository;
-import com.Java.LMS.platform.infrastructure.repository.StudentRepository;
+import com.Java.LMS.platform.domain.Entities.*;
+import com.Java.LMS.platform.infrastructure.repository.*;
 import com.Java.LMS.platform.service.UserService;
 import com.Java.LMS.platform.service.dto.Auth.AuthServiceResult;
 import com.Java.LMS.platform.service.dto.Auth.RegisterRequestModel;
@@ -44,27 +36,22 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public AuthServiceResult registerUserAndSyncRole(RegisterRequestModel registerDto) {
         var result = new AuthServiceResult();
-
         try {
             if (userRepository.findByUsername(registerDto.getUsername()).isPresent()) {
                 throw new IllegalArgumentException("Username is already taken!");
             }
-
             User user = new User();
             user.setUsername(registerDto.getUsername());
             user.setPassword(passwordEncoder.encode(registerDto.getPassword()));
             user.setEmail(registerDto.getEmail());
-
             Role role = roleRepository.findByRoleName(registerDto.getRoleName());
             if (role == null) {
                 throw new IllegalArgumentException("Invalid role!");
             }
             user.setRole(role);
             userRepository.save(user);
-
             boolean isSynced = false;
             String message;
-
             switch (registerDto.getRoleName().toUpperCase()) {
                 case "ROLE_STUDENT":
                     isSynced = syncStudent(user, registerDto);
@@ -81,24 +68,24 @@ public class UserServiceImpl implements UserService {
                 default:
                     throw new IllegalArgumentException("Unsupported role type!");
             }
-
             result.setMessage(message);
             result.setResultState(isSynced);
             return result;
-
         } catch (Exception e) {
             result.setMessage(e.getMessage());
             result.setResultState(false);
             return result;
         }
     }
-    private void syncStudent(User user, RegisterRequestModel registerDto) {
-        Student student = new Student();
-        student.setUserId(user.getUserId());
-        // Create a valid JSON string
-        String additionalInfo = "{\"key\": \"info\"}";
-        student.setAdditionalInfo(additionalInfo);
 
+    private boolean syncStudent(User user, RegisterRequestModel registerDto) {
+        try {
+            Student student = new Student();
+            student.setUserId(user.getUserId());
+
+            // Create a valid JSON string
+            String additionalInfo = "{\"key\": \"info\"}";
+            student.setAdditionalInfo(additionalInfo);
 
             student.setMajor("MAJOR");
             student.setYearOfStudy(3);
@@ -131,9 +118,7 @@ public class UserServiceImpl implements UserService {
             Admin admin = new Admin();
             admin.setUser(user);
             // admin.setAccessLevel(registerDto.getAccessLevel());
-
             adminRepository.save(admin);
-
             return true;
         } catch (Exception e) {
             System.err.println("Error syncing admin: " + e.getMessage());
