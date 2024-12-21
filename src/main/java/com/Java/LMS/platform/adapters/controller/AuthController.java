@@ -23,7 +23,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
+import java.util.HashMap;
+import java.util.Map;
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -52,14 +53,28 @@ public class AuthController {
     @PermitAll
     @PostMapping("login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequestModel loginDto){
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        loginDto.getUsername(),
-                        loginDto.getPassword()));
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        String token = jwtGenerator.generateToken(authentication);
 
-        return new ResponseEntity<>(new LoginResponse(token), HttpStatus.OK);
+        if (loginDto.getUsername() == null || loginDto.getPassword() == null || loginDto.getUsername().isEmpty() || loginDto.getPassword().isEmpty()){
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Missing Credentials");
+            return new ResponseEntity(errorResponse,HttpStatus.BAD_REQUEST);
+        }
+
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            loginDto.getUsername(),
+                            loginDto.getPassword()));
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            String token = jwtGenerator.generateToken(authentication);
+
+            return new ResponseEntity<>(new LoginResponse(token), HttpStatus.OK);
+        } catch (Exception e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Wrong Email/Password");
+            return new ResponseEntity(errorResponse,HttpStatus.BAD_REQUEST);
+        }
+
     }
 
    @Transactional

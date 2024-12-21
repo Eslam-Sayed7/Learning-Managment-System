@@ -37,6 +37,11 @@ public class UserServiceImpl implements UserService {
     public AuthServiceResult registerUserAndSyncRole(RegisterRequestModel registerDto) {
         var result = new AuthServiceResult();
         try {
+
+            if (registerDto.getUsername() == null || registerDto.getPassword() == null || registerDto.getEmail() == null || registerDto.getRoleName() == null || registerDto.getUsername().isEmpty() || registerDto.getPassword().isEmpty() || registerDto.getEmail().isEmpty() || registerDto.getRoleName().isEmpty()){
+                throw  new IllegalArgumentException("Missing Credentials");
+            }
+
             if (userRepository.findByUsername(registerDto.getUsername()).isPresent()) {
                 throw new IllegalArgumentException("Username is already taken!");
             }
