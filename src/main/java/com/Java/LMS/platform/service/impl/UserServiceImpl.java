@@ -43,6 +43,10 @@ public class UserServiceImpl implements UserService {
             User user = new User();
             user.setUsername(registerDto.getUsername());
             user.setPassword(passwordEncoder.encode(registerDto.getPassword()));
+
+            if (userRepository.findByEmail(registerDto.getEmail()).isPresent()) {
+                throw new IllegalArgumentException("Email is already taken!");
+            }
             user.setEmail(registerDto.getEmail());
             Role role = roleRepository.findByRoleName(registerDto.getRoleName());
             if (role == null) {
