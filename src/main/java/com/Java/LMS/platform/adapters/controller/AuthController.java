@@ -71,7 +71,7 @@ public class AuthController {
             return new ResponseEntity<>(new LoginResponse(token), HttpStatus.OK);
         } catch (Exception e) {
             Map<String, String> errorResponse = new HashMap<>();
-            errorResponse.put("error", "Wrong Email/Password");
+            errorResponse.put("error", "Wrong Credentials");
             return new ResponseEntity(errorResponse,HttpStatus.BAD_REQUEST);
         }
 
