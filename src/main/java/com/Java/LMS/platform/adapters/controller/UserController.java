@@ -14,13 +14,11 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import java.util.HashMap;
-import java.util.Map;
+
 @RestController
 @RequestMapping("/api/user")
 public class UserController {
@@ -47,7 +45,7 @@ public class UserController {
 
     @PermitAll
     @PostMapping("password-change")
-    public ResponseEntity<AccountResponse> changePassword(@RequestBody AccountRequestModel accountData) {
+    public ResponseEntity<AccountResponse> changePassword(@RequestBody AccountRePasswordModel accountData) {
 
         AccountResponse result = new AccountResponse();
 
@@ -70,6 +68,7 @@ public class UserController {
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
             // Step 3: Apply new password
+            accountData.setUsername(username);
             result = userService.changePassword(accountData);
 
             // Step 4: Generate new token
@@ -83,34 +82,27 @@ public class UserController {
     }
     @PermitAll
     @PostMapping("email-change")
-    public ResponseEntity<AccountResponse> changeemail(@RequestBody AccountRequestModel accountData) {
+    public ResponseEntity<AccountResponse> changemail(@RequestBody AccountReMailModel accountData) {
 
         AccountResponse result = new AccountResponse();
         //result = userService.changePassword(accountData);
 
         try {
-            // Step 1: Validate JWT token
-            if (!jwtGenerator.validateToken(accountData.getToken())) {
-                Map<String, String> errorResponse = new HashMap<>();
-                errorResponse.put("error", "Invalid JWT Token");
-                return new ResponseEntity( errorResponse , HttpStatus.BAD_REQUEST);
-            }
 
-            // Step 2: Authenticate old password
+            // Step 2: Authenticate password
+            String username = jwtGenerator.getUsernameFromJWT(accountData.getToken());
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            accountData.getUsername(),
+                           username,
                             accountData.getPassword()
                     )
             );
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            // Step 3: Apply new password
-            result = userService.changePassword(accountData);
+            // Step 3: Apply new email
+            accountData.setUsername(username);
+            result = userService.changeMail(accountData);
 
-            // Step 4: Generate new token
-            String newToken = jwtGenerator.generateToken(authentication);
-            result.setToken(newToken);
             return new ResponseEntity<AccountResponse>(result, HttpStatus.OK);
         } catch (Exception e) {
             result.setMessage(e.getMessage());

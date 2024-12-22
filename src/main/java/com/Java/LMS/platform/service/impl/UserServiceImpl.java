@@ -3,10 +3,7 @@ package com.Java.LMS.platform.service.impl;
 import com.Java.LMS.platform.domain.Entities.*;
 import com.Java.LMS.platform.infrastructure.repository.*;
 import com.Java.LMS.platform.service.UserService;
-import com.Java.LMS.platform.service.dto.Auth.AccountRequestModel;
-import com.Java.LMS.platform.service.dto.Auth.AccountResponse;
-import com.Java.LMS.platform.service.dto.Auth.AuthServiceResult;
-import com.Java.LMS.platform.service.dto.Auth.RegisterRequestModel;
+import com.Java.LMS.platform.service.dto.Auth.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -90,7 +87,7 @@ public class UserServiceImpl implements UserService {
         }
     }
     @Transactional
-    public AccountResponse changePassword(AccountRequestModel accountData) {
+    public AccountResponse changePassword(AccountRePasswordModel accountData) {
         var result = new AccountResponse();
         Optional<User> userOptional = userRepository.findByUsername(accountData.getUsername());
         if (userOptional.isEmpty()) {
@@ -101,6 +98,29 @@ public class UserServiceImpl implements UserService {
 
         User user = userOptional.get();
         user.setPassword(passwordEncoder.encode(accountData.getNewPassword()));
+        userRepository.save(user);
+
+        result.setMessage("OK");
+        result.setResultState(false);
+        return result;
+    }
+
+    @Transactional
+    public AccountResponse changeMail(AccountReMailModel accountData) {
+        var result = new AccountResponse();
+        Optional<User> userOptional = userRepository.findByUsername(accountData.getUsername());
+        if (userOptional.isEmpty()) {
+            result.setMessage("User not found");
+            result.setResultState(false);
+            return result;
+        }
+
+        if (userRepository.findByEmail(accountData.getEmail()).isPresent()) {
+            throw new IllegalArgumentException("Email is already taken!");
+        }
+
+        User user = userOptional.get();
+        user.setEmail(accountData.getEmail());
         userRepository.save(user);
 
         result.setMessage("OK");
