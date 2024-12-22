@@ -3,13 +3,16 @@ package com.Java.LMS.platform.service.impl;
 import com.Java.LMS.platform.domain.Entities.*;
 import com.Java.LMS.platform.infrastructure.repository.*;
 import com.Java.LMS.platform.service.UserService;
+import com.Java.LMS.platform.service.dto.Auth.AccountRequestModel;
+import com.Java.LMS.platform.service.dto.Auth.AccountResponse;
 import com.Java.LMS.platform.service.dto.Auth.AuthServiceResult;
 import com.Java.LMS.platform.service.dto.Auth.RegisterRequestModel;
-import org.apache.logging.log4j.message.Message;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -85,6 +88,24 @@ public class UserServiceImpl implements UserService {
             result.setResultState(false);
             return result;
         }
+    }
+    @Transactional
+    public AccountResponse changePassword(AccountRequestModel accountData) {
+        var result = new AccountResponse();
+        Optional<User> userOptional = userRepository.findByUsername(accountData.getUsername());
+        if (userOptional.isEmpty()) {
+            result.setMessage("User not found");
+            result.setResultState(false);
+            return result;
+        }
+
+        User user = userOptional.get();
+        user.setPassword(passwordEncoder.encode(accountData.getNewPassword()));
+        userRepository.save(user);
+
+        result.setMessage("OK");
+        result.setResultState(false);
+        return result;
     }
 
     private boolean syncStudent(User user, RegisterRequestModel registerDto) {
