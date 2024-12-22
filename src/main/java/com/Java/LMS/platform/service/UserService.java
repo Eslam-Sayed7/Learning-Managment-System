@@ -7,5 +7,5 @@ public interface UserService {
     // TODO
     AccountResponse changePassword(AccountRePasswordModel changePasswordRequestModel);
     AccountResponse changeMail(AccountReMailModel changeMailRequestModel);
-    //AuthServiceResult changeUsername(AccountRequestModel changeUserNameRequestModel);
+    AccountResponse changeUsername(AccountReUsernameModel changeUserNameRequestModel);
 }

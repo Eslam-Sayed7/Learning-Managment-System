@@ -109,4 +109,35 @@ public class UserController {
             return new ResponseEntity<AccountResponse> ( result , HttpStatus.BAD_REQUEST);
         }
     }
+    @PermitAll
+    @PostMapping("username-change")
+    public ResponseEntity<AccountResponse> changeUsername(@RequestBody AccountReUsernameModel accountData) {
+
+        AccountResponse result = new AccountResponse();
+
+        try {
+
+            String username = jwtGenerator.getUsernameFromJWT(accountData.getToken());
+            // Step 2: Authenticate old password
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            username,
+                            accountData.getPassword()
+                    )
+            );
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            // Step 3: Apply new password
+            accountData.setUsername(username);
+            result = userService.changeUsername(accountData);
+
+            // Step 4: Generate new token
+            String newToken = jwtGenerator.generateToken(authentication);
+            result.setToken(newToken);
+            return new ResponseEntity<AccountResponse>(result, HttpStatus.OK);
+        } catch (Exception e) {
+            result.setMessage(e.getMessage());
+            return new ResponseEntity<AccountResponse> ( result , HttpStatus.BAD_REQUEST);
+        }
+    }
 }

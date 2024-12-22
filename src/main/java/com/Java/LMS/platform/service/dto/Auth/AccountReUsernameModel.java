@@ -33,7 +33,7 @@ public class AccountReUsernameModel {
         return newUsername;
     }
 
-    public void setNewUsername(String username) {
+    public void setNewUsername(String newUsername) {
         this.newUsername = newUsername;
     }
 

@@ -106,6 +106,29 @@ public class UserServiceImpl implements UserService {
     }
 
     @Transactional
+    public AccountResponse changeUsername(AccountReUsernameModel accountData) {
+        var result = new AccountResponse();
+        Optional<User> userOptional = userRepository.findByUsername(accountData.getUsername());
+        if (userOptional.isEmpty()) {
+            result.setMessage("User not found");
+            result.setResultState(false);
+            return result;
+        }
+
+        if (userRepository.findByEmail(accountData.getNewUsername()).isPresent()) {
+            throw new IllegalArgumentException("Username is already taken!");
+        }
+
+        User user = userOptional.get();
+        user.setUsername(accountData.getNewUsername());
+        userRepository.save(user);
+
+        result.setMessage("OK");
+        result.setResultState(false);
+        return result;
+    }
+
+    @Transactional
     public AccountResponse changeMail(AccountReMailModel accountData) {
         var result = new AccountResponse();
         Optional<User> userOptional = userRepository.findByUsername(accountData.getUsername());
