@@ -76,6 +76,9 @@ public class Submission {
         this.assessment = assessment;
     }
 
+    public void setId(long l) {
+        submissionId = l;
+    }
     // getters and setters
 
 }
