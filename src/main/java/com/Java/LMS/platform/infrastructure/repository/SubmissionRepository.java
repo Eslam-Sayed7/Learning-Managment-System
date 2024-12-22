@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface SubmissionRepository extends JpaRepository<Submission, Integer> {
-    Optional<Submission> findById(int submissionId);
+public interface SubmissionRepository extends JpaRepository<Submission, Long> {
+   @Override
+   Optional<Submission> findById(Long submissionId);
 }
