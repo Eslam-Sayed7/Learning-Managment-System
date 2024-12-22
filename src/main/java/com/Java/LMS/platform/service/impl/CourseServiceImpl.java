@@ -148,4 +148,11 @@ public class CourseServiceImpl implements CourseService {
         courseRepository.deleteCourseByCourseId(courseId);
         return true; // Course successfully deleted
     }
+
+    @Override
+    public User getStudentById(Long studentId) {
+        return studentRepository.findById(studentId)
+                .map(Student::getUser) // Assuming Student has a getUser() method that returns a User
+                .orElseThrow(() -> new RuntimeException("Student not found with ID: " + studentId));
+    }
 }

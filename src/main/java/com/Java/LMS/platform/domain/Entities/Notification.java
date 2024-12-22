@@ -13,13 +13,11 @@ public class Notification {
     @Column(name = "notification_id")
     private Long notificationId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user; // Recipient of the notification
+    @Column(name = "user_id", nullable = false)
+    private Long userId; // Recipient of the notification
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sender_id")
-    private User sender; // Optional sender of the notification
+    @Column(name = "sender_id")
+    private Long senderId; // Optional sender of the notification
 
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false)
@@ -38,9 +36,9 @@ public class Notification {
 
     public Notification() {}
 
-    public Notification(User user, User sender, NotificationType type, String content) {
-        this.user = user;
-        this.sender = sender;
+    public Notification(Long userId, Long senderId, NotificationType type, String content) {
+        this.userId = userId;
+        this.senderId = senderId;
         this.type = type;
         this.content = content;
     }
@@ -55,20 +53,20 @@ public class Notification {
         this.notificationId = notificationId;
     }
 
-    public User getUser() {
-        return user;
+    public Long getUserId() {
+        return userId;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
-    public User getSender() {
-        return sender;
+    public Long getSenderId() {
+        return senderId;
     }
 
-    public void setSender(User sender) {
-        this.sender = sender;
+    public void setSenderId(Long senderId) {
+        this.senderId = senderId;
     }
 
     public NotificationType getType() {
@@ -107,8 +105,8 @@ public class Notification {
     public String toString() {
         return "Notification{" +
                 "notificationId=" + notificationId +
-                ", user=" + (user != null ? user.getUserId() : null) +
-                ", sender=" + (sender != null ? sender.getUserId() : null) +
+                ", userId=" + userId +
+                ", senderId=" + senderId +
                 ", type=" + type +
                 ", content='" + content + '\'' +
                 ", isRead=" + isRead +
@@ -116,4 +114,3 @@ public class Notification {
                 '}';
     }
 }
-

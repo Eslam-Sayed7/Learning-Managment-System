@@ -12,6 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.Java.LMS.platform.service.NotificationService;
+import com.Java.LMS.platform.enums.NotificationType;
+
 
 import java.io.File;
 import java.time.LocalDateTime;
@@ -27,14 +30,23 @@ public class CourseManagementController {
     private final LessonService lessonService;
     private FileStorageService fileStorageService;
     private AdminRepository adminRepository;
+    private final NotificationService notificationService;
+
 
 
     @Autowired
-    public CourseManagementController(CourseService courseService, LessonService lessonService , FileStorageService fileStorageService , AdminRepository adminRepository) {
+    public CourseManagementController(
+            CourseService courseService,
+            LessonService lessonService,
+            FileStorageService fileStorageService,
+            AdminRepository adminRepository,
+            NotificationService notificationService // Add NotificationService
+    ) {
         this.courseService = courseService;
         this.lessonService = lessonService;
         this.fileStorageService = fileStorageService;
         this.adminRepository = adminRepository;
+        this.notificationService = notificationService; // Initialize NotificationService
     }
 
     // Course Creation
@@ -161,6 +173,16 @@ public class CourseManagementController {
 
         // Enroll the student in the course
         courseService.enrollStudent(enrollmentRequest.getCourseId(), enrollmentRequest);
+
+
+        // Create a notification for the student
+        notificationService.createNotification(
+                enrollmentRequest.getStudentId(),
+                null, // No sender in this context
+                NotificationType.ENROLLMENT,
+                "You have successfully enrolled in the course: " + course.get().getTitle()
+        );
+
         return ResponseEntity.ok("Enrollment successful!");
     }
 

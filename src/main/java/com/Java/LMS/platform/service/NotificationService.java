@@ -20,10 +20,10 @@ public class NotificationService {
     }
 
     // Create a new notification
-    public Notification createNotification(User user, User sender, NotificationType type, String content) {
+    public Notification createNotification(Long userId, Long senderId, NotificationType type, String content) {
         Notification notification = new Notification();
-        notification.setUser(user);
-        notification.setSender(sender);
+        notification.setUserId(userId);
+        notification.setSenderId(senderId);
         notification.setType(type);
         notification.setContent(content);
         return notificationRepository.save(notification);
@@ -31,21 +31,15 @@ public class NotificationService {
 
     // Fetch and mark all notifications as read for the user
     public List<Notification> getAndMarkNotificationsAsRead(Long userId) {
-        // Fetch notifications
-        List<Notification> notifications = notificationRepository.findByUserUserId(userId);
-
-        // Mark them as read
+        List<Notification> notifications = notificationRepository.findByUserId(userId);
         notifications.forEach(notification -> notification.setIsRead(true));
-
-        // Save changes
         notificationRepository.saveAll(notifications);
-
         return notifications;
     }
 
     // Fetch only unread notifications for the user
     public List<Notification> getUnreadNotifications(Long userId) {
-        return notificationRepository.findByUserUserIdAndIsReadFalse(userId);
+        return notificationRepository.findByUserIdAndIsReadFalse(userId);
     }
 
     // Mark a specific notification as read
@@ -56,4 +50,5 @@ public class NotificationService {
         return notificationRepository.save(notification);
     }
 }
+
 

@@ -9,8 +9,8 @@ import java.util.List;
 @Repository
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
     // Fetch all notifications for a specific user
-    List<Notification> findByUserUserId(Long userId);
+    List<Notification> findByUserId(Long userId);
 
     // Fetch unread notifications for a specific user
-    List<Notification> findByUserUserIdAndIsReadFalse(Long userId);
+    List<Notification> findByUserIdAndIsReadFalse(Long userId);
 }
