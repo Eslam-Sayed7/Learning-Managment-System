@@ -50,6 +50,42 @@ public class UserController {
     public ResponseEntity<AccountResponse> changePassword(@RequestBody AccountRequestModel accountData) {
 
         AccountResponse result = new AccountResponse();
+
+        try {
+            // Step 1: Validate JWT token
+            // Since it already validates in the header this function is not needed
+//            if (!jwtGenerator.validateToken(accountData.getToken())) {
+//                Map<String, String> errorResponse = new HashMap<>();
+//                errorResponse.put("error", "Invalid JWT Token");
+//                return new ResponseEntity( errorResponse , HttpStatus.BAD_REQUEST);
+//            }
+            String username = jwtGenerator.getUsernameFromJWT(accountData.getToken());
+            // Step 2: Authenticate old password
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            username,
+                            accountData.getPassword()
+                    )
+            );
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            // Step 3: Apply new password
+            result = userService.changePassword(accountData);
+
+            // Step 4: Generate new token
+            String newToken = jwtGenerator.generateToken(authentication);
+            result.setToken(newToken);
+            return new ResponseEntity<AccountResponse>(result, HttpStatus.OK);
+        } catch (Exception e) {
+            result.setMessage(e.getMessage());
+            return new ResponseEntity<AccountResponse> ( result , HttpStatus.BAD_REQUEST);
+        }
+    }
+    @PermitAll
+    @PostMapping("email-change")
+    public ResponseEntity<AccountResponse> changeemail(@RequestBody AccountRequestModel accountData) {
+
+        AccountResponse result = new AccountResponse();
         //result = userService.changePassword(accountData);
 
         try {
