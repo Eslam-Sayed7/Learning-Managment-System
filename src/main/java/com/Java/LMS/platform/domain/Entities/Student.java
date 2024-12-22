@@ -1,6 +1,7 @@
 package com.Java.LMS.platform.domain.Entities;
 
 import jakarta.persistence.*;
+
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
@@ -32,6 +33,9 @@ public class Student {
 
     @ManyToMany(mappedBy = "students")
     private List<Course> courses;
+
+    @OneToMany(mappedBy = "student")
+    private List<Submission> submissions;
 
     public List<Course> getCourses() {
         return courses;

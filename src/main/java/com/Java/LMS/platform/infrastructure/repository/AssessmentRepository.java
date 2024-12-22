@@ -22,5 +22,6 @@ public interface AssessmentRepository extends JpaRepository<Assessment, Long> {
     List<Assessment> findByAssessmentTypeId(Long typeId);
 
     //find Assessment By id
+    @Override
     Optional<Assessment> findById(Long Id);
 }
