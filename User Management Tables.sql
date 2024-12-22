@@ -126,7 +126,7 @@ CREATE TABLE questions (
     question_id SERIAL PRIMARY KEY,
     assessment_id INT REFERENCES assessments(assessment_id) ON DELETE CASCADE,
     question_text TEXT NOT NULL,
-    question_type VARCHAR(50) CHECK (question_type IN ('MCQ', 'True/False', 'Short Answer'))
+    question_type VARCHAR(50) CHECK (question_type IN ('MCQ', 'True/False'))
 );
 
 -- Choices Table

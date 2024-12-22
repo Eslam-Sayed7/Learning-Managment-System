@@ -1,8 +1,7 @@
 package com.Java.LMS.platform.service.impl;
 
 import com.Java.LMS.platform.service.EmailService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.Java.LMS.platform.service.dto.Email.EmailFormateDto;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
@@ -22,13 +21,13 @@ public class EmailServiceImpl implements EmailService {
 
     @Async
     @Override
-    public void sendRegisterEmail(String to) {
+    public void sendEmail(EmailFormateDto emailDto) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setSubject("New User Account Verification");
+            message.setSubject(emailDto.getSubject());
             message.setFrom(fromEmail);
-            message.setTo(to);
-            message.setText("The email service is working");
+            message.setTo(emailDto.getTo());
+            message.setText(emailDto.getEmailBody());
             javaMailSender.send(message);
         } catch (MailException exception) {
             throw new RuntimeException("Failed to send email", exception);
