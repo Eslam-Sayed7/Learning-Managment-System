@@ -72,22 +72,6 @@ public class CourseManagementController {
         return ResponseEntity.status(HttpStatus.CREATED).body(course);
     }
 
-//    @PostMapping("/{courseId}/lessons/create") // DONE
-//    public ResponseEntity<?> createLesson(@PathVariable Long courseId, @RequestBody LessonRequestModel lessonRequest) {
-//        Optional<Course> course = courseService.getCourseById(courseId);
-//        if (course.isEmpty()) {
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Course not found!");
-//        }
-//
-//        boolean lessonExists = lessonService.isLessonFound(courseId , lessonRequest.getLessonName());
-//
-//        if (lessonExists) {
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Lesson with the same title already exists for this course!");
-//        }
-//
-//        Lesson lesson = lessonService.createLesson(courseId, lessonRequest);
-//        return ResponseEntity.status(HttpStatus.CREATED).body(lesson);
-//    }
 @PostMapping("/{courseId}/lessons/create")
     public ResponseEntity<?> createLesson(
             @PathVariable Long courseId,
@@ -185,8 +169,8 @@ public class CourseManagementController {
         // Enroll the student in the course
         courseService.enrollStudent(enrollmentRequest.getCourseId(), enrollmentRequest);
 
-        var user = userRepository.findById(enrollmentRequest.getUserId()).get();
-        var email = new EmailFormateDto();
+        User user = userRepository.findById(enrollmentRequest.getUserId()).get();
+        EmailFormateDto email = new EmailFormateDto();
         email.setTo(user.getEmail());
         email.setSubject("You have successfully enrolled in the course: " + course.get().getTitle());
         email.setEmailBody("You have successfully enrolled in the course: " + course.get().getTitle() + ". You can now access the course materials and start learning. Have a great experience!");
