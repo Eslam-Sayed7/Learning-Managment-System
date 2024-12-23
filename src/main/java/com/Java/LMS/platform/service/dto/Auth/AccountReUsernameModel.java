@@ -16,9 +16,6 @@ public class AccountReUsernameModel {
     @Size(min = 8, message = "Password must be at least 8 characters long")
     private String password;
 
-    @NotBlank(message = "No Token Found")
-    private String token;
-
 
     // Getters and Setters
     public String getUsername() {
@@ -53,10 +50,4 @@ public class AccountReUsernameModel {
         this.password = password;
     }
 
-    public String getToken() {
-        return token;
-    }
-    public void setToken(String token) {
-        this.token = token;
-    }
 }

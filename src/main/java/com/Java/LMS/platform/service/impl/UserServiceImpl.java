@@ -1,10 +1,17 @@
 package com.Java.LMS.platform.service.impl;
 
+import com.Java.LMS.platform.config.Security.JWTGenerator;
 import com.Java.LMS.platform.domain.Entities.*;
 import com.Java.LMS.platform.infrastructure.repository.*;
 import com.Java.LMS.platform.service.UserService;
 import com.Java.LMS.platform.service.dto.Auth.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,17 +27,22 @@ public class UserServiceImpl implements UserService {
     private final StudentRepository studentRepository;
     private final InstructorRepository instructorRepository;
     private final AdminRepository adminRepository;
+    private final AuthenticationManager authenticationManager;
+    private final JWTGenerator jwtGenerator;
 
     @Autowired
     public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder,
                            StudentRepository studentRepository, InstructorRepository instructorRepository,
-                           AdminRepository adminRepository) {
+                           AdminRepository adminRepository , AuthenticationManager authenticationManager
+                                                            , JWTGenerator jwtGenerator) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
         this.studentRepository = studentRepository;
         this.instructorRepository = instructorRepository;
         this.adminRepository = adminRepository;
+        this.authenticationManager = authenticationManager;
+        this.jwtGenerator = jwtGenerator;
     }
 
     @Transactional
@@ -88,26 +100,57 @@ public class UserServiceImpl implements UserService {
     }
     @Transactional
     public AccountResponse changePassword(AccountRePasswordModel accountData) {
-        var result = new AccountResponse();
-        Optional<User> userOptional = userRepository.findByUsername(accountData.getUsername());
+        var response = new AccountResponse();
+        // Step 2: Authenticate old password
+        Authentication oldAuthentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = oldAuthentication.getName();
+
+        Optional<User> userOptional = userRepository.findByUsername(username);
         if (userOptional.isEmpty()) {
-            result.setMessage("User not found");
-            result.setResultState(false);
-            return result;
+            response.setMessage("User not found");
+            return response;
         }
 
         User user = userOptional.get();
+        boolean isPasswordCorrect = passwordEncoder.matches(accountData.getPassword(), user.getPassword());
+        if (!isPasswordCorrect) {
+            response.setMessage("Incorrect password");
+            return response;
+        }
+
+        // Step 3: Update the password in the database
         user.setPassword(passwordEncoder.encode(accountData.getNewPassword()));
         userRepository.save(user);
 
-        result.setMessage("OK");
-        result.setResultState(false);
-        return result;
+        // Step 4: Generate new authentication token
+        SecurityContextHolder.clearContext();
+        Authentication newAuthentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        username,
+                        accountData.getNewPassword()
+                )
+        );
+        SecurityContextHolder.getContext().setAuthentication(newAuthentication);
+        String newToken = jwtGenerator.generateToken(newAuthentication);
+        response.setToken(newToken);
+        response.setMessage("Password updated successfully");
+        response.setResultState(true);
+        return response;
     }
 
     @Transactional
     public AccountResponse changeUsername(AccountReUsernameModel accountData) {
+
         var result = new AccountResponse();
+
+        var oldAuthentication = SecurityContextHolder.getContext().getAuthentication();
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        oldAuthentication.getName(),
+                        accountData.getPassword()
+                )
+        );
+
         Optional<User> userOptional = userRepository.findByUsername(accountData.getUsername());
         if (userOptional.isEmpty()) {
             result.setMessage("User not found");
@@ -115,21 +158,49 @@ public class UserServiceImpl implements UserService {
             return result;
         }
 
-        if (userRepository.findByEmail(accountData.getNewUsername()).isPresent()) {
-            throw new IllegalArgumentException("Username is already taken!");
+        Optional<User> user = userRepository.findByUsername(accountData.getNewUsername());
+        if (user.isPresent()) {
+            result.setMessage("Username is already taken!");
+            result.setResultState(false);
+            return result;
         }
 
-        User user = userOptional.get();
-        user.setUsername(accountData.getNewUsername());
-        userRepository.save(user);
+        User oldUser = userOptional.get();
+        User newUser = User.builder()
+                .userId(oldUser.getUserId())
+                .username(accountData.getNewUsername())
+                .password(oldUser.getPassword())
+                .email(oldUser.getEmail())
+                .role(oldUser.getRole())
+                .build();
+        userRepository.save(newUser);
 
-        result.setMessage("OK");
-        result.setResultState(false);
+        SecurityContextHolder.clearContext();
+        Authentication newAuthentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        accountData.getNewUsername(),
+                        accountData.getPassword()
+                )
+        );
+        SecurityContextHolder.getContext().setAuthentication(newAuthentication);
+        String newToken = jwtGenerator.generateToken(newAuthentication);
+        result.setToken(newToken);
+        result.setMessage("username changed Successfully");
+        result.setResultState(true);
         return result;
     }
 
     @Transactional
     public AccountResponse changeMail(AccountReMailModel accountData) {
+        // Step 2: Authenticate password
+        String username = jwtGenerator.getUsernameFromJWT(accountData.getToken());
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        username,
+                        accountData.getPassword()
+                )
+        );
+
         var result = new AccountResponse();
         Optional<User> userOptional = userRepository.findByUsername(accountData.getUsername());
         if (userOptional.isEmpty()) {
