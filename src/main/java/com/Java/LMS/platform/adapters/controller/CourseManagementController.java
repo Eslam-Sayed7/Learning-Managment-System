@@ -17,11 +17,15 @@ import org.springframework.web.bind.annotation.*;
 import com.Java.LMS.platform.enums.NotificationType;
 
 
+
 import java.io.File;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static com.Java.LMS.platform.enums.NotificationType.*;
+
 
 @RestController
 @RequestMapping("/api/courses")
@@ -68,22 +72,6 @@ public class CourseManagementController {
         return ResponseEntity.status(HttpStatus.CREATED).body(course);
     }
 
-//    @PostMapping("/{courseId}/lessons/create") // DONE
-//    public ResponseEntity<?> createLesson(@PathVariable Long courseId, @RequestBody LessonRequestModel lessonRequest) {
-//        Optional<Course> course = courseService.getCourseById(courseId);
-//        if (course.isEmpty()) {
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Course not found!");
-//        }
-//
-//        boolean lessonExists = lessonService.isLessonFound(courseId , lessonRequest.getLessonName());
-//
-//        if (lessonExists) {
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Lesson with the same title already exists for this course!");
-//        }
-//
-//        Lesson lesson = lessonService.createLesson(courseId, lessonRequest);
-//        return ResponseEntity.status(HttpStatus.CREATED).body(lesson);
-//    }
 @PostMapping("/{courseId}/lessons/create")
     public ResponseEntity<?> createLesson(
             @PathVariable Long courseId,
@@ -139,6 +127,10 @@ public class CourseManagementController {
         lesson.setLessonType(extension);
         lesson.setFileUrl(fileUrl); // Save the uploaded file URL
         Lesson savedLesson = lessonService.createLesson(lesson); // Save the lesson to the database
+        List<User> studentsenroll = courseService.getEnrolledStudents(courseId);
+        for(User user : studentsenroll){
+            notificationService.createNotification(user.getUserId() , null , COURSE_UPDATE , "New Lesson " + lesson.getLessonName() + "From Course " + course.get().getTitle());
+        }
         return ResponseEntity.status(HttpStatus.CREATED).body(savedLesson);
     }
 
@@ -177,8 +169,8 @@ public class CourseManagementController {
         // Enroll the student in the course
         courseService.enrollStudent(enrollmentRequest.getCourseId(), enrollmentRequest);
 
-        var user = userRepository.findById(enrollmentRequest.getUserId()).get();
-        var email = new EmailFormateDto();
+        User user = userRepository.findById(enrollmentRequest.getUserId()).get();
+        EmailFormateDto email = new EmailFormateDto();
         email.setTo(user.getEmail());
         email.setSubject("You have successfully enrolled in the course: " + course.get().getTitle());
         email.setEmailBody("You have successfully enrolled in the course: " + course.get().getTitle() + ". You can now access the course materials and start learning. Have a great experience!");
@@ -236,9 +228,10 @@ public class CourseManagementController {
 
         // Generate the OTP
         String otp = lessonService.generateOtp(lessonId);
-
-        // Uncomment the following line after implementing notification logic
-        // lessonService.notifyStudents(courseService.getEnrolledStudents(courseId), otp);
+        List<User> studentsenroll = courseService.getEnrolledStudents(courseId);
+        for(User user : studentsenroll){
+            notificationService.createNotification(user.getUserId() , null , GenerateOtp , "This Lesson id : " +lessonId+ " .Generate-OTP : " + lesson.get().getOtp() );
+        }
 
         return ResponseEntity.ok("OTP generated and sent to enrolled students!");
     }
@@ -269,6 +262,7 @@ public class CourseManagementController {
         boolean isVerified = lessonService.recordAttendance(lessonId, otp, studentId);
         if (isVerified) {
             attendanceService.updateAttendancePercentageInProgress(studentId);
+            notificationService.createNotification(courseService.getUserIdForStudent(studentId) , null , Attend , "Attendance recorded successfully for Course: "+course.get().getTitle()+ " ,lessonid: " + lessonId  );
             return ResponseEntity.ok("Attendance recorded successfully!");
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid OTP!");
@@ -303,6 +297,7 @@ public class CourseManagementController {
         // Remove the student from the course
         boolean removed = courseService.removeStudentFromCourse(courseId, studentId);
         if (removed) {
+            notificationService.createNotification(courseService.getUserIdForStudent(studentId) ,null , RemoveFromCourse , "You removed from course : " + course.get().getTitle() );
             return ResponseEntity.ok("Student removed from the course successfully!");
         } else {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -331,6 +326,11 @@ public class CourseManagementController {
         Optional<Lesson> lesson = lessonService.getLessonById(lessonId);
         if (lesson.isEmpty() || !lesson.get().getCourseId().equals(courseId)) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Lesson not found or does not belong to the specified course!");
+        }
+
+        List<User> studentsenroll = courseService.getEnrolledStudents(courseId);
+        for(User user : studentsenroll){
+            notificationService.createNotification(user.getUserId() , null , COURSE_UPDATE , "the Lesson: " + lesson.get().getLessonName() + " is removed");
         }
 
         // Delete the lesson
@@ -375,6 +375,11 @@ public class CourseManagementController {
             lessonService.deleteLesson(lesson.getId());
         }
 
+        List<User> studentsenroll = courseService.getEnrolledStudents(courseId);
+        for(User user : studentsenroll){
+            notificationService.createNotification(user.getUserId() , null , COURSE_UPDATE , "Coures:" + course.get().getTitle() +"is removed");
+        }
+
         // Delete the course
         boolean deleted = courseService.deleteCourse(courseId);
         if (deleted) {
@@ -386,3 +391,5 @@ public class CourseManagementController {
     }
 
 }
+
+
