@@ -19,6 +19,9 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
 
     @Query("SELECT l FROM Lesson l WHERE l.courseId = :courseId AND l.lessonName = :lessonName")
     Optional<Lesson> findLessonByCourseIdAndName(@Param("courseId") Long courseId, @Param("lessonName") String lessonName);
-
+    // Query to count total lessons for all courses the student is enrolled in
+    @Query("SELECT COUNT(l) FROM Lesson l WHERE l.courseId IN " +
+            "(SELECT e.courseId FROM Enrollment e WHERE e.studentId = :studentId)")
+    long countTotalLessonsForStudent(@Param("studentId") Long studentId);
     List<Lesson> findLessonsByCourseId(Long courseId);
 }

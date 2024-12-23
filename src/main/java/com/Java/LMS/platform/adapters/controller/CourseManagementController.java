@@ -8,6 +8,7 @@ import com.Java.LMS.platform.service.LessonService;
 import com.Java.LMS.platform.service.dto.CourseRequestModel;
 import com.Java.LMS.platform.service.dto.EnrollmentRequestModel;
 import com.Java.LMS.platform.service.dto.LessonRequestModel;
+import com.Java.LMS.platform.service.impl.AttendanceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,14 +28,16 @@ public class CourseManagementController {
     private final LessonService lessonService;
     private FileStorageService fileStorageService;
     private AdminRepository adminRepository;
-
+    private final AttendanceService attendanceService;
 
     @Autowired
-    public CourseManagementController(CourseService courseService, LessonService lessonService , FileStorageService fileStorageService , AdminRepository adminRepository) {
+    public CourseManagementController(CourseService courseService, LessonService lessonService , FileStorageService fileStorageService , AdminRepository adminRepository, AttendanceService attendanceService) {
         this.courseService = courseService;
         this.lessonService = lessonService;
         this.fileStorageService = fileStorageService;
         this.adminRepository = adminRepository;
+        this.attendanceService = attendanceService;
+
     }
 
     // Course Creation
@@ -236,6 +239,7 @@ public class CourseManagementController {
         // Record attendance and validate the OTP
         boolean isVerified = lessonService.recordAttendance(lessonId, otp, studentId);
         if (isVerified) {
+            attendanceService.updateAttendancePercentageInProgress(studentId);
             return ResponseEntity.ok("Attendance recorded successfully!");
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid OTP!");
