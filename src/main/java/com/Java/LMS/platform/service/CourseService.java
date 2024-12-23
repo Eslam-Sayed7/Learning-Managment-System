@@ -21,5 +21,5 @@ public interface CourseService {
 
     boolean deleteCourse(Long courseId);
 
-    User getStudentById(Long studentId);
+//    User getStudentById(Long studentId);
 }

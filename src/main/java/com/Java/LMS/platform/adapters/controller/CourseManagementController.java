@@ -2,17 +2,17 @@ package com.Java.LMS.platform.adapters.controller;
 
 import com.Java.LMS.platform.domain.Entities.*;
 import com.Java.LMS.platform.infrastructure.repository.AdminRepository;
-import com.Java.LMS.platform.service.CourseService;
-import com.Java.LMS.platform.service.FileStorageService;
-import com.Java.LMS.platform.service.LessonService;
+import com.Java.LMS.platform.infrastructure.repository.StudentRepository;
+import com.Java.LMS.platform.infrastructure.repository.UserRepository;
+import com.Java.LMS.platform.service.*;
 import com.Java.LMS.platform.service.dto.CourseRequestModel;
+import com.Java.LMS.platform.service.dto.Email.EmailFormateDto;
 import com.Java.LMS.platform.service.dto.EnrollmentRequestModel;
 import com.Java.LMS.platform.service.dto.LessonRequestModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.Java.LMS.platform.service.NotificationService;
 import com.Java.LMS.platform.enums.NotificationType;
 
 
@@ -31,22 +31,22 @@ public class CourseManagementController {
     private FileStorageService fileStorageService;
     private AdminRepository adminRepository;
     private final NotificationService notificationService;
-
-
+    private final EmailService emailService;
+    private final UserRepository userRepository;
+    private final StudentRepository studentRepository;
 
     @Autowired
-    public CourseManagementController(
-            CourseService courseService,
-            LessonService lessonService,
-            FileStorageService fileStorageService,
-            AdminRepository adminRepository,
-            NotificationService notificationService // Add NotificationService
-    ) {
+    public CourseManagementController( CourseService courseService, LessonService lessonService, FileStorageService fileStorageService,
+            AdminRepository adminRepository, NotificationService notificationService, EmailService emailService
+            , UserRepository userRepository, StudentRepository studentRepository) {
+        this.emailService = emailService;
         this.courseService = courseService;
         this.lessonService = lessonService;
         this.fileStorageService = fileStorageService;
         this.adminRepository = adminRepository;
         this.notificationService = notificationService; // Initialize NotificationService
+        this.userRepository = userRepository;
+        this.studentRepository = studentRepository;
     }
 
     // Course Creation
@@ -174,10 +174,17 @@ public class CourseManagementController {
         // Enroll the student in the course
         courseService.enrollStudent(enrollmentRequest.getCourseId(), enrollmentRequest);
 
+        var user = userRepository.findById(enrollmentRequest.getUserId()).get();
+        var email = new EmailFormateDto();
+        email.setTo(user.getEmail());
+        email.setSubject("You have successfully enrolled in the course: " + course.get().getTitle());
+        email.setEmailBody("You have successfully enrolled in the course: " + course.get().getTitle() + ". You can now access the course materials and start learning. Have a great experience!");
+        emailService.sendEmail(email);
+
 
         // Create a notification for the student
         notificationService.createNotification(
-                enrollmentRequest.getStudentId(),
+                enrollmentRequest.getUserId(),
                 null, // No sender in this context
                 NotificationType.ENROLLMENT,
                 "You have successfully enrolled in the course: " + course.get().getTitle()
