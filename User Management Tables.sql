@@ -154,8 +154,8 @@ CREATE TABLE progress_tracking (
     student_id INT REFERENCES students(student_id) ON DELETE CASCADE,
     course_id INT REFERENCES courses(course_id) ON DELETE CASCADE,
     quiz_scores JSONB,
-    assignments_submitted INT DEFAULT 0,
-    attendance_count INT DEFAULT 0,
+    assignments_submitted BIGINT,
+    attendance_count DOUBLE PRECISION DEFAULT 0.0,
     last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -163,7 +163,7 @@ CREATE TABLE progress_tracking (
 CREATE TABLE notifications (
     notification_id SERIAL PRIMARY KEY,
     user_id INT REFERENCES users(user_id) ON DELETE CASCADE,
-    type VARCHAR(50) CHECK (type IN ('ENROLLMENT', 'GRADE', 'COURSE_UPDATE')) NOT NULL, -- Type of notification
+    type VARCHAR(50) CHECK (type IN ('ENROLLMENT', 'GRADE', 'COURSE_UPDATE' , 'GenerateOtp' , 'Attend' , 'RemoveFromCourse')) NOT NULL, -- Type of notification
 
     content TEXT NOT NULL,
     is_read BOOLEAN DEFAULT FALSE,

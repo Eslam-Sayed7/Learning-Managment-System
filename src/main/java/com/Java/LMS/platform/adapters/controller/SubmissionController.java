@@ -3,14 +3,19 @@ package com.Java.LMS.platform.adapters.controller;
 import com.Java.LMS.platform.domain.Entities.Assessment;
 import com.Java.LMS.platform.domain.Entities.Student;
 import com.Java.LMS.platform.domain.Entities.Submission;
+import com.Java.LMS.platform.domain.Entities.User;
 import com.Java.LMS.platform.infrastructure.repository.AssessmentRepository;
 import com.Java.LMS.platform.infrastructure.repository.StudentRepository;
+import com.Java.LMS.platform.infrastructure.repository.UserRepository;
+import com.Java.LMS.platform.service.EmailService;
 import com.Java.LMS.platform.service.dto.Course.SubmissionRequestDto;
 import com.Java.LMS.platform.infrastructure.repository.SubmissionRepository;
 import com.Java.LMS.platform.service.GradeService;
+import com.Java.LMS.platform.service.dto.Email.EmailFormateDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,14 +29,19 @@ public class SubmissionController {
     private StudentRepository studentRepository;
     private SubmissionRepository submissionRepository;
     private AssessmentRepository assessmentRepository;
+    private UserRepository userRepository;
+    private EmailService emailService;
 
     @Autowired
     public SubmissionController(GradeService gradeService, StudentRepository studentRepository,
-                                SubmissionRepository submissionRepository, AssessmentRepository assessmentRepository) {
+                                SubmissionRepository submissionRepository, AssessmentRepository assessmentRepository,
+                                UserRepository userRepository, EmailService emailService) {
         this.gradeService = gradeService;
         this.studentRepository = studentRepository;
         this.submissionRepository = submissionRepository;
         this.assessmentRepository = assessmentRepository;
+        this.userRepository = userRepository;
+        this.emailService = emailService;
     }
 
     public SubmissionController(SubmissionRepository submissionRepository, AssessmentRepository assessmentRepository, StudentRepository studentRepository, GradeService gradeService) {
@@ -68,8 +78,17 @@ public class SubmissionController {
         try {
             boolean result = gradeService.calculateGrade(submissionId);
 
+            String username = SecurityContextHolder.getContext().getAuthentication().getName();
+            User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
+            EmailFormateDto email = new EmailFormateDto();
+            email.setTo(user.getEmail());
+            email.setSubject("Your Have new grades ");
+            email.setEmailBody("Your grades are calculated successfully and your grade is: ");
+            emailService.sendEmail(email);
+
             if (result) {
                 return ResponseEntity.ok("Grade calculated successfully");
+
             } else {
                 return ResponseEntity.badRequest().body("Failed to calculate grade");
             }
