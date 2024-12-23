@@ -4,12 +4,21 @@ import com.Java.LMS.platform.domain.Entities.Assessment;
 import com.Java.LMS.platform.domain.Entities.AssessmentRequest;
 import com.Java.LMS.platform.domain.Entities.AssessmentType;
 import com.Java.LMS.platform.domain.Entities.Course;
+import com.Java.LMS.platform.domain.Entities.*;
+import com.Java.LMS.platform.infrastructure.repository.AssessmentTypeRepository;
+import com.Java.LMS.platform.infrastructure.repository.QuestionRepository;
+import com.Java.LMS.platform.service.UserService;
 import com.Java.LMS.platform.service.dto.ResourceNotFoundException;
 import com.Java.LMS.platform.service.impl.AssessmentServiceImpl;
 import com.Java.LMS.platform.service.impl.AssessmentTypeService;
 import com.Java.LMS.platform.service.impl.CourseServiceImpl;
+import com.Java.LMS.platform.service.impl.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -28,6 +37,11 @@ public class AssessmentController {
 
     @Autowired
     private AssessmentTypeService typeService;
+
+    @Autowired
+    private QuestionService questionService;
+    @Autowired
+    private UserServiceImpl userService;
     // Get assessments by course ID
     @GetMapping("/course/{courseId}")
     public ResponseEntity<List<Assessment>> getAssessmentsByCourse(@PathVariable Long courseId) {
@@ -116,5 +130,28 @@ public class AssessmentController {
     public ResponseEntity<Void> deleteAssessment(@PathVariable Long assessmentId) {
         assessmentService.deleteAssessment(assessmentId);
         return ResponseEntity.noContent().build();
+    }
+    // Add a question
+    @PostMapping("addQuestion/{assessmentId}/")
+    public ResponseEntity<Questions> addQuestion(@PathVariable Long assessmentId, @RequestBody Questions questionRequest) {
+        Questions createdQuestion = questionService.addQuestionToAssessment(
+                assessmentId, questionRequest.getQuestionText(), questionRequest.getQuestionType());
+        return ResponseEntity.ok(createdQuestion);
+    }
+    //Return Questions bank per assessment Id
+    @GetMapping("/questionBank/{assessmentId}")
+    public List<Questions> getAllQuestionsById(@PathVariable Long assessmentId){
+        return questionService.findAllQuestionsById(assessmentId);
+    }
+    //Return randomized questions per attempt
+    @GetMapping("/attempt/{assessmentId}")
+    public ResponseEntity<List<Questions>> getRanomizedQuestionsPerAttempt(@PathVariable Long assessmentId){
+        Assessment x=assessmentService.findById(assessmentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Assessment not found with ID: " + assessmentId));
+        if(x.getAssessmentType().getId()!=1){
+            return ResponseEntity.badRequest().build();
+        }
+        List<Questions> q= questionService.getRandomQuestions(x.getId());
+        return ResponseEntity.ok(q);
     }
 }

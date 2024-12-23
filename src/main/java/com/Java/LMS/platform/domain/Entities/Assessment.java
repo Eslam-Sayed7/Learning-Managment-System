@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import java.util.List;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Entity
@@ -22,8 +23,8 @@ public class Assessment {
     @ManyToOne
     @JoinColumn(name = "type_id", nullable = false)
     private AssessmentType assessmentType;
-//    @OneToMany(mappedBy = "assessment", cascade = CascadeType.ALL, orphanRemoval = true)
-//    private List<Questions> questions;
+    @OneToMany(mappedBy = "assessment", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Questions> questions;
     @Column(name = "name")
     private String name;
 
@@ -48,15 +49,15 @@ public class Assessment {
     public Course getCourse() {
         return course;
     }
-//    public List<Questions> getQuestions() {
-//        return questions;
-//    }
+    public List<Questions> getQuestions() {
+        return questions;
+    }
     public void setCourse(Course course) {
         this.course = course;
     }
-//    public void setQuestions(List<Questions> questions) {
-//        this.questions = questions;
-//    }
+    public void setQuestions(List<Questions> questions) {
+        this.questions = questions;
+    }
     public AssessmentType getAssessmentType() {
         return assessmentType;
     }
