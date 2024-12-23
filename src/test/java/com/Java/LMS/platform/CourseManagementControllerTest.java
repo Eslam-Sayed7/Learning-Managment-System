@@ -2,12 +2,13 @@ package com.Java.LMS.platform;
 
 import com.Java.LMS.platform.adapters.controller.CourseManagementController;
 import com.Java.LMS.platform.domain.Entities.*;
+import com.Java.LMS.platform.enums.NotificationType;
 import com.Java.LMS.platform.infrastructure.repository.AdminRepository;
 import com.Java.LMS.platform.infrastructure.repository.AttendanceRepository;
-import com.Java.LMS.platform.service.CourseService;
-import com.Java.LMS.platform.service.FileStorageService;
-import com.Java.LMS.platform.service.LessonService;
+import com.Java.LMS.platform.infrastructure.repository.UserRepository;
+import com.Java.LMS.platform.service.*;
 import com.Java.LMS.platform.service.dto.CourseRequestModel;
+import com.Java.LMS.platform.service.dto.Email.EmailFormateDto;
 import com.Java.LMS.platform.service.dto.EnrollmentRequestModel;
 import com.Java.LMS.platform.service.dto.LessonRequestModel;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,6 +32,14 @@ class CourseManagementControllerTest {
 
     @Mock
     private CourseService courseService;
+
+    @Mock
+    private UserRepository userRepository;
+    @Mock
+    private EmailService emailService;
+
+    @Mock
+    private NotificationService notificationService;
 
     @Mock
     private LessonService lessonService;
@@ -125,17 +134,35 @@ class CourseManagementControllerTest {
 
     @Test
     void enrollStudent_ShouldReturnOk_WhenValidRequest() {
+        // Arrange
         EnrollmentRequestModel request = new EnrollmentRequestModel();
         request.setCourseId(1L);
         request.setStudentId(2L);
+        request.setUserId(3L);
 
         Course course = new Course();
+        course.setTitle("Test Course");
+
+        User user = new User();
+        user.setEmail("test@example.com");
+
         when(courseService.getCourseById(1L)).thenReturn(Optional.of(course));
         when(courseService.getEnrolledStudents(1L)).thenReturn(new ArrayList<>());
+        when(userRepository.findById(3L)).thenReturn(Optional.of(user));
 
+        // Act
         ResponseEntity<String> response = courseManagementController.enrollStudent(request);
 
+        // Assert
         verify(courseService).enrollStudent(1L, request);
+        verify(emailService).sendEmail(any(EmailFormateDto.class));
+        verify(notificationService).createNotification(
+                eq(3L),
+                isNull(),
+                eq(NotificationType.ENROLLMENT),
+                contains("You have successfully enrolled in the course: Test Course")
+        );
+
         assertEquals(200, response.getStatusCodeValue());
         assertEquals("Enrollment successful!", response.getBody());
     }
