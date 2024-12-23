@@ -17,11 +17,15 @@ import org.springframework.web.bind.annotation.*;
 import com.Java.LMS.platform.enums.NotificationType;
 
 
+
 import java.io.File;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static com.Java.LMS.platform.enums.NotificationType.*;
+
 
 @RestController
 @RequestMapping("/api/courses")
@@ -139,6 +143,10 @@ public class CourseManagementController {
         lesson.setLessonType(extension);
         lesson.setFileUrl(fileUrl); // Save the uploaded file URL
         Lesson savedLesson = lessonService.createLesson(lesson); // Save the lesson to the database
+        List<User> studentsenroll = courseService.getEnrolledStudents(courseId);
+        for(User user : studentsenroll){
+            notificationService.createNotification(user.getUserId() , null , COURSE_UPDATE , "New Lesson " + lesson.getLessonName() + "From Course " + course.get().getTitle());
+        }
         return ResponseEntity.status(HttpStatus.CREATED).body(savedLesson);
     }
 
@@ -236,9 +244,10 @@ public class CourseManagementController {
 
         // Generate the OTP
         String otp = lessonService.generateOtp(lessonId);
-
-        // Uncomment the following line after implementing notification logic
-        // lessonService.notifyStudents(courseService.getEnrolledStudents(courseId), otp);
+        List<User> studentsenroll = courseService.getEnrolledStudents(courseId);
+        for(User user : studentsenroll){
+            notificationService.createNotification(user.getUserId() , null , GenerateOtp , "This Lesson id : " +lessonId+ " .Generate-OTP : " + lesson.get().getOtp() );
+        }
 
         return ResponseEntity.ok("OTP generated and sent to enrolled students!");
     }
@@ -269,6 +278,7 @@ public class CourseManagementController {
         boolean isVerified = lessonService.recordAttendance(lessonId, otp, studentId);
         if (isVerified) {
             attendanceService.updateAttendancePercentageInProgress(studentId);
+            notificationService.createNotification(courseService.getUserIdForStudent(studentId) , null , Attend , "Attendance recorded successfully for Course: "+course.get().getTitle()+ " ,lessonid: " + lessonId  );
             return ResponseEntity.ok("Attendance recorded successfully!");
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid OTP!");
@@ -303,6 +313,7 @@ public class CourseManagementController {
         // Remove the student from the course
         boolean removed = courseService.removeStudentFromCourse(courseId, studentId);
         if (removed) {
+            notificationService.createNotification(courseService.getUserIdForStudent(studentId) ,null , RemoveFromCourse , "You removed from course : " + course.get().getTitle() );
             return ResponseEntity.ok("Student removed from the course successfully!");
         } else {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -331,6 +342,11 @@ public class CourseManagementController {
         Optional<Lesson> lesson = lessonService.getLessonById(lessonId);
         if (lesson.isEmpty() || !lesson.get().getCourseId().equals(courseId)) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Lesson not found or does not belong to the specified course!");
+        }
+
+        List<User> studentsenroll = courseService.getEnrolledStudents(courseId);
+        for(User user : studentsenroll){
+            notificationService.createNotification(user.getUserId() , null , COURSE_UPDATE , "the Lesson: " + lesson.get().getLessonName() + " is removed");
         }
 
         // Delete the lesson
@@ -373,6 +389,11 @@ public class CourseManagementController {
         List<Lesson> lessons = lessonService.getLessonsByCourseId(courseId);
         for (Lesson lesson : lessons) {
             lessonService.deleteLesson(lesson.getId());
+        }
+
+        List<User> studentsenroll = courseService.getEnrolledStudents(courseId);
+        for(User user : studentsenroll){
+            notificationService.createNotification(user.getUserId() , null , COURSE_UPDATE , "Coures:" + course.get().getTitle() +"is removed");
         }
 
         // Delete the course
