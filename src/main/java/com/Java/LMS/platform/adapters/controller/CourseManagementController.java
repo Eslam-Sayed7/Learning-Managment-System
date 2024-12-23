@@ -9,6 +9,7 @@ import com.Java.LMS.platform.service.dto.CourseRequestModel;
 import com.Java.LMS.platform.service.dto.Email.EmailFormateDto;
 import com.Java.LMS.platform.service.dto.EnrollmentRequestModel;
 import com.Java.LMS.platform.service.dto.LessonRequestModel;
+import com.Java.LMS.platform.service.impl.AttendanceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,16 +30,17 @@ public class CourseManagementController {
     private final CourseService courseService;
     private final LessonService lessonService;
     private FileStorageService fileStorageService;
-    private AdminRepository adminRepository;
+    private final AdminRepository adminRepository;
     private final NotificationService notificationService;
     private final EmailService emailService;
     private final UserRepository userRepository;
     private final StudentRepository studentRepository;
-
+    private final AttendanceService attendanceService;
     @Autowired
     public CourseManagementController( CourseService courseService, LessonService lessonService, FileStorageService fileStorageService,
             AdminRepository adminRepository, NotificationService notificationService, EmailService emailService
-            , UserRepository userRepository, StudentRepository studentRepository) {
+            , UserRepository userRepository, StudentRepository studentRepository,AttendanceService attendanceService ) {
+
         this.emailService = emailService;
         this.courseService = courseService;
         this.lessonService = lessonService;
@@ -47,6 +49,7 @@ public class CourseManagementController {
         this.notificationService = notificationService; // Initialize NotificationService
         this.userRepository = userRepository;
         this.studentRepository = studentRepository;
+        this.attendanceService = attendanceService;
     }
 
     // Course Creation
@@ -265,6 +268,7 @@ public class CourseManagementController {
         // Record attendance and validate the OTP
         boolean isVerified = lessonService.recordAttendance(lessonId, otp, studentId);
         if (isVerified) {
+            attendanceService.updateAttendancePercentageInProgress(studentId);
             return ResponseEntity.ok("Attendance recorded successfully!");
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid OTP!");

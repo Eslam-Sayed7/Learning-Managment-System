@@ -180,3 +180,144 @@ CREATE INDEX idx_course_name ON courses (course_name);
 INSERT INTO assessment_types (type_name) VALUES
 ('Quiz'),
 ('Assignment');
+
+-- First, create the function separately
+BEGIN;
+
+-- Create the function
+CREATE OR REPLACE FUNCTION calculate_grade(p_submission_id INT)
+RETURNS BOOLEAN AS $$
+DECLARE
+    correct_answers INT;
+    total_questions INT;
+    calculated_grade DECIMAL(5, 2);  -- renamed to avoid confusion with UPDATE
+BEGIN
+    -- Get correct answers count
+    SELECT COUNT(*) INTO correct_answers
+    FROM choices c
+    JOIN questions q ON c.question_id = q.question_id
+    WHERE c.is_correct = TRUE AND q.assessment_id = (
+        SELECT assessment_id
+        FROM submissions s
+        WHERE s.submission_id = p_submission_id
+    );
+
+    -- Get total questions count
+    SELECT COUNT(*) INTO total_questions
+    FROM questions q
+    WHERE q.assessment_id = (
+        SELECT assessment_id
+        FROM submissions s
+        WHERE s.submission_id = p_submission_id
+    );
+
+    -- Handle division by zero
+    IF total_questions = 0 THEN
+        UPDATE submissions
+        SET grade = 0,
+            feedback = 'No questions found'
+        WHERE submission_id = p_submission_id;
+        RETURN FALSE;
+    END IF;
+
+    -- Calculate grade
+    calculated_grade := (correct_answers::DECIMAL / total_questions) * 100;
+
+    -- Update the submission with the calculated grade
+    UPDATE submissions
+    SET grade = calculated_grade,
+        feedback = CASE
+            WHEN calculated_grade >= 70 THEN 'Passed'
+            ELSE 'Failed - Score below 70%'
+        END
+    WHERE submission_id = p_submission_id;
+
+    RETURN calculated_grade >= 70;
+END;
+$$ LANGUAGE plpgsql;
+BEGIN;
+-- Now test the function with a separate transaction
+--DO $$
+--DECLARE
+--    v_user_id INTEGER;
+--    v_instructor_id INTEGER;
+--    v_course_id INTEGER;
+--    v_assessment_id INTEGER;
+--    v_question_id1 INTEGER;
+--    v_question_id2 INTEGER;
+--    v_student_user_id INTEGER;
+--    v_student_id INTEGER;
+--    v_submission_id INTEGER;
+--    v_test_result BOOLEAN;
+--    v_grade DECIMAL(5,2);
+--    v_feedback TEXT;
+--BEGIN
+--    -- Create test instructor
+--    INSERT INTO users (username, email, password, role_id)
+--    VALUES ('test_instructor', 'instructor@test.com', 'password123',
+--           (SELECT role_id FROM roles WHERE role_name = 'ROLE_INSTRUCTOR'))
+--    RETURNING user_id INTO v_user_id;
+--
+--    INSERT INTO instructors (user_id, department, title)
+--    VALUES (v_user_id, 'Computer Science', 'Professor')
+--    RETURNING instructor_id INTO v_instructor_id;
+--
+--    -- Create test course
+--    INSERT INTO courses (course_name, description, instructor_id)
+--    VALUES ('Test Course', 'Test Course Description', v_instructor_id)
+--    RETURNING course_id INTO v_course_id;
+--
+--    -- Create test assessment
+--    INSERT INTO assessments (course_id, type_id, name, description)
+--    VALUES (
+--        v_course_id,
+--        (SELECT assessment_type_id FROM assessment_types WHERE type_name = 'Quiz'),
+--        'Test Quiz',
+--        'Test Quiz Description'
+--    ) RETURNING assessment_id INTO v_assessment_id;
+--
+--    -- Create test questions
+--    INSERT INTO questions (assessment_id, question_text, question_type)
+--    VALUES (v_assessment_id, 'What is 2+2?', 'MCQ')
+--    RETURNING question_id INTO v_question_id1;
+--
+--    -- Add choices
+--    INSERT INTO choices (question_id, choice_text, is_correct)
+--    VALUES
+--        (v_question_id1, '3', FALSE),
+--        (v_question_id1, '4', TRUE),
+--        (v_question_id1, '5', FALSE);
+--
+--    -- Create test student
+--    INSERT INTO users (username, email, password, role_id)
+--    VALUES ('test_student', 'student@test.com', 'password123',
+--           (SELECT role_id FROM roles WHERE role_name = 'ROLE_STUDENT'))
+--    RETURNING user_id INTO v_student_user_id;
+--
+--    INSERT INTO students (user_id, major, year_of_study)
+--    VALUES (v_student_user_id, 'Computer Science', 2)
+--    RETURNING student_id INTO v_student_id;
+--
+--    -- Create submission
+--    INSERT INTO submissions (assessment_id, student_id)
+--    VALUES (v_assessment_id, v_student_id)
+--    RETURNING submission_id INTO v_submission_id;
+--
+--    -- Test the function
+--    v_test_result := calculate_grade(v_submission_id);
+--
+--    -- Get results
+--    SELECT grade, feedback
+--    INTO v_grade, v_feedback
+--    FROM submissions
+--    WHERE submission_id = v_submission_id;
+--
+--    RAISE NOTICE 'Test Result: %, Grade: %, Feedback: %', v_test_result, v_grade, v_feedback;
+--
+--EXCEPTION
+--    WHEN OTHERS THEN
+--        RAISE NOTICE 'Error: %', SQLERRM;
+--        RAISE;
+--END $$;
+--
+--COMMIT;
