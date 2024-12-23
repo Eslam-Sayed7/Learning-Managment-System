@@ -20,4 +20,6 @@ public interface CourseService {
     boolean removeStudentFromCourse(Long courseId, Long studentId);
 
     boolean deleteCourse(Long courseId);
+
+//    User getStudentById(Long studentId);
 }

@@ -9,7 +9,7 @@ spring:
     datasource:
         url: jdbc:postgresql://localhost:5432/LMSplatform?stringtype=unspecified
         username: postgres
-        password: 66c#Abi^Xqjj
+        password: Saf@1611@
     jpa:
         hibernate:
             ddl-auto: update

@@ -65,7 +65,7 @@ public class CourseServiceImpl implements CourseService {
         }
 
         // Check if student exists
-        User student = userRepository.findById(enrollmentRequest.getStudentId())
+        Student student = studentRepository.findById(enrollmentRequest.getStudentId())
                 .orElseThrow(() -> new IllegalArgumentException("Student not found"));
 
         // Check if student is already enrolled
@@ -148,4 +148,11 @@ public class CourseServiceImpl implements CourseService {
         courseRepository.deleteCourseByCourseId(courseId);
         return true; // Course successfully deleted
     }
+
+//    @Override
+//    public User getStudentById(Long studentId) {
+//        return studentRepository.findById(studentId)
+//                .map(Student::getUser) // Assuming Student has a getUser() method that returns a User
+//                .orElseThrow(() -> new RuntimeException("Student not found with ID: " + studentId));
+//    }
 }
