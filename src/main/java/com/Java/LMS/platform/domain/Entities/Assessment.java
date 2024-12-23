@@ -1,6 +1,7 @@
 package com.Java.LMS.platform.domain.Entities;
 
 import jakarta.persistence.*;
+import java.util.List;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -26,6 +27,9 @@ public class Assessment {
     private List<Questions> questions;
     @Column(name = "name")
     private String name;
+
+    @OneToMany(mappedBy = "assessment")
+    private List<Submission> submissions;
 
     @Column(name = "description")
     private String description;

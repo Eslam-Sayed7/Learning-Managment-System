@@ -1,10 +1,17 @@
 package com.Java.LMS.platform.adapters.controller;
 
+import com.Java.LMS.platform.domain.Entities.Assessment;
+import com.Java.LMS.platform.domain.Entities.AssessmentRequest;
+import com.Java.LMS.platform.domain.Entities.AssessmentType;
+import com.Java.LMS.platform.domain.Entities.Course;
 import com.Java.LMS.platform.domain.Entities.*;
 import com.Java.LMS.platform.infrastructure.repository.AssessmentTypeRepository;
 import com.Java.LMS.platform.infrastructure.repository.QuestionRepository;
 import com.Java.LMS.platform.service.UserService;
 import com.Java.LMS.platform.service.dto.ResourceNotFoundException;
+import com.Java.LMS.platform.service.impl.AssessmentServiceImpl;
+import com.Java.LMS.platform.service.impl.AssessmentTypeService;
+import com.Java.LMS.platform.service.impl.CourseServiceImpl;
 import com.Java.LMS.platform.service.impl.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,7 +30,7 @@ import java.util.Optional;
 public class AssessmentController {
 
     @Autowired
-    private AssessmentService assessmentService;
+    private AssessmentServiceImpl assessmentService;
 
     @Autowired
     private CourseServiceImpl courseService;
@@ -45,6 +52,13 @@ public class AssessmentController {
     public String hello(){
         return "Hello";
     }
+
+    @GetMapping("assessment/{id}")
+    public ResponseEntity<Optional<Assessment>> getAssessmentById(Long id) {
+        Optional<Assessment> assessment = assessmentService.findById(id);
+        return ResponseEntity.ok(assessment);
+    }
+
     // Get assessment by name
     @GetMapping("/name/{name}")
     public ResponseEntity<Assessment> getAssessmentByName(@PathVariable String name) {
