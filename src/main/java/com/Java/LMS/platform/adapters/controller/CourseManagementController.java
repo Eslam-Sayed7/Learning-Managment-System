@@ -10,6 +10,7 @@ import com.Java.LMS.platform.service.dto.Email.EmailFormateDto;
 import com.Java.LMS.platform.service.dto.EnrollmentRequestModel;
 import com.Java.LMS.platform.service.dto.LessonRequestModel;
 import com.Java.LMS.platform.service.impl.AttendanceService;
+import com.Java.LMS.platform.service.impl.ProgressTrackingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,10 +42,11 @@ public class CourseManagementController {
     private final UserRepository userRepository;
     private final StudentRepository studentRepository;
     private final AttendanceService attendanceService;
+    private final ProgressTrackingService progressTrackingService;
     @Autowired
     public CourseManagementController( CourseService courseService, LessonService lessonService, FileStorageService fileStorageService,
             AdminRepository adminRepository, NotificationService notificationService, EmailService emailService
-            , UserRepository userRepository, StudentRepository studentRepository,AttendanceService attendanceService ) {
+            , UserRepository userRepository, StudentRepository studentRepository,AttendanceService attendanceService, ProgressTrackingService progressTrackingService) {
 
         this.emailService = emailService;
         this.courseService = courseService;
@@ -54,6 +56,7 @@ public class CourseManagementController {
         this.notificationService = notificationService; // Initialize NotificationService
         this.userRepository = userRepository;
         this.studentRepository = studentRepository;
+        this.progressTrackingService = progressTrackingService;
         this.attendanceService = attendanceService;
     }
 
@@ -177,7 +180,6 @@ public class CourseManagementController {
         email.setEmailBody("You have successfully enrolled in the course: " + course.get().getTitle() + ". You can now access the course materials and start learning. Have a great experience!");
         emailService.sendEmail(email);
 
-
         // Create a notification for the student
         notificationService.createNotification(
                 enrollmentRequest.getUserId(),
@@ -185,7 +187,12 @@ public class CourseManagementController {
                 NotificationType.ENROLLMENT,
                 "You have successfully enrolled in the course: " + course.get().getTitle()
         );
-
+        ProgressTracking p = new ProgressTracking();
+        p.setStudent(studentRepository.findById(enrollmentRequest.getStudentId()).get());
+        p.setCourse(course.get());
+        p.setAssignmentSubmitted(0L);
+        p.setAttendanceCount(0.0);
+        progressTrackingService.saveProgress(p);
         return ResponseEntity.ok("Enrollment successful!");
     }
 

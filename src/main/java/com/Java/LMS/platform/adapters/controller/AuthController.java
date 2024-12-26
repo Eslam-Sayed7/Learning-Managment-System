@@ -9,6 +9,7 @@ import com.Java.LMS.platform.service.dto.Auth.AuthServiceResult;
 import com.Java.LMS.platform.service.dto.Auth.LoginRequestModel;
 import com.Java.LMS.platform.service.dto.Auth.RegisterRequestModel;
 import com.Java.LMS.platform.service.dto.Auth.LoginResponse;
+import com.Java.LMS.platform.service.dto.Email.EmailFormateDto;
 import jakarta.annotation.security.PermitAll;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -85,7 +86,11 @@ public class AuthController {
             result = userService.registerUserAndSyncRole(registerDto);
             if (result.isResultState()){
                 // uncomment if you have the right yml file with the service crendtial
-//                emailService.sendRegisterEmail(registerDto.getEmail());
+                var email = new EmailFormateDto();
+                email.setTo(registerDto.getEmail());
+                email.setSubject("Registration");
+                email.setEmailBody("You have successfully registered");
+                emailService.sendEmail(email);
                 result.setMessage("Registered successfully");
                 return new ResponseEntity<AuthServiceResult>(result , HttpStatus.OK);
             }

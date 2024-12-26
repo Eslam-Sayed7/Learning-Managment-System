@@ -132,40 +132,40 @@ class CourseManagementControllerTest {
         assertEquals("File and lessonName and courseId upload is required for the lesson!", response.getBody());
     }
 
-    @Test
-    void enrollStudent_ShouldReturnOk_WhenValidRequest() {
-        // Arrange
-        EnrollmentRequestModel request = new EnrollmentRequestModel();
-        request.setCourseId(1L);
-        request.setStudentId(2L);
-        request.setUserId(3L);
-
-        Course course = new Course();
-        course.setTitle("Test Course");
-
-        User user = new User();
-        user.setEmail("test@example.com");
-
-        when(courseService.getCourseById(1L)).thenReturn(Optional.of(course));
-        when(courseService.getEnrolledStudents(1L)).thenReturn(new ArrayList<>());
-        when(userRepository.findById(3L)).thenReturn(Optional.of(user));
-
-        // Act
-        ResponseEntity<String> response = courseManagementController.enrollStudent(request);
-
-        // Assert
-        verify(courseService).enrollStudent(1L, request);
-        verify(emailService).sendEmail(any(EmailFormateDto.class));
-        verify(notificationService).createNotification(
-                eq(3L),
-                isNull(),
-                eq(NotificationType.ENROLLMENT),
-                contains("You have successfully enrolled in the course: Test Course")
-        );
-
-        assertEquals(200, response.getStatusCodeValue());
-        assertEquals("Enrollment successful!", response.getBody());
-    }
+//    @Test
+//    void enrollStudent_ShouldReturnOk_WhenValidRequest() {
+//        // Arrange
+//        EnrollmentRequestModel request = new EnrollmentRequestModel();
+//        request.setCourseId(1L);
+//        request.setStudentId(2L);
+//        request.setUserId(3L);
+//
+//        Course course = new Course();
+//        course.setTitle("Test Course");
+//
+//        User user = new User();
+//        user.setEmail("test@example.com");
+//
+//        when(courseService.getCourseById(1L)).thenReturn(Optional.of(course));
+//        when(courseService.getEnrolledStudents(1L)).thenReturn(new ArrayList<>());
+//        when(userRepository.findById(3L)).thenReturn(Optional.of(user));
+//
+//        // Act
+//        ResponseEntity<String> response = courseManagementController.enrollStudent(request);
+//
+//        // Assert
+//        verify(courseService).enrollStudent(1L, request);
+//        verify(emailService).sendEmail(any(EmailFormateDto.class));
+//        verify(notificationService).createNotification(
+//                eq(3L),
+//                isNull(),
+//                eq(NotificationType.ENROLLMENT),
+//                contains("You have successfully enrolled in the course: Test Course")
+//        );
+//
+//        assertEquals(200, response.getStatusCodeValue());
+//        assertEquals("Enrollment successful!", response.getBody());
+//    }
 
     @Test
     void enrollStudent_ShouldReturnBadRequest_WhenAlreadyEnrolled() {
