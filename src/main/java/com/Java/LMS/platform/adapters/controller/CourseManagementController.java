@@ -212,6 +212,7 @@ public class CourseManagementController {
     // Attendance Management
     @PostMapping("/{courseId}/lessons/{lessonId}/generate-otp")
     public ResponseEntity<String> generateOtp(@PathVariable Long courseId, @PathVariable Long lessonId, @RequestParam Long instructorId) {
+
         // Verify if the course exists
         Optional<Course> course = courseService.getCourseById(courseId);
         if (course.isEmpty()) {
@@ -237,8 +238,14 @@ public class CourseManagementController {
         // Generate the OTP
         String otp = lessonService.generateOtp(lessonId);
         List<User> studentsenroll = courseService.getEnrolledStudents(courseId);
+        String message =  "This Lesson id : " +lessonId+ " .Generate-OTP : " + lesson.get().getOtp();
         for(User user : studentsenroll){
-            notificationService.createNotification(user.getUserId() , null , GenerateOtp , "This Lesson id : " +lessonId+ " .Generate-OTP : " + lesson.get().getOtp() );
+            notificationService.createNotification(user.getUserId() , null , GenerateOtp , message );
+            var email = new EmailFormateDto();
+            email.setTo(user.getEmail());
+            email.setSubject("lesson OTP");
+            email.setEmailBody(message);
+            emailService.sendEmail(email);
         }
 
         return ResponseEntity.ok("OTP generated and sent to enrolled students!");

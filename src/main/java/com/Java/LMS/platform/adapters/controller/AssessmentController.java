@@ -1,4 +1,4 @@
-package com.Java.LMS.platform.adapters.controller;
+    package com.Java.LMS.platform.adapters.controller;
 
 import com.Java.LMS.platform.domain.Entities.Assessment;
 import com.Java.LMS.platform.domain.Entities.AssessmentRequest;
@@ -8,6 +8,7 @@ import com.Java.LMS.platform.domain.Entities.*;
 import com.Java.LMS.platform.infrastructure.repository.AssessmentTypeRepository;
 import com.Java.LMS.platform.infrastructure.repository.QuestionRepository;
 import com.Java.LMS.platform.service.UserService;
+import com.Java.LMS.platform.service.dto.AddChoiceDto;
 import com.Java.LMS.platform.service.dto.ResourceNotFoundException;
 import com.Java.LMS.platform.service.impl.AssessmentServiceImpl;
 import com.Java.LMS.platform.service.impl.AssessmentTypeService;
@@ -153,5 +154,10 @@ public class AssessmentController {
         }
         List<Questions> q= questionService.getRandomQuestions(x.getId());
         return ResponseEntity.ok(q);
+    }
+    @PostMapping("choices/{questionId}/add")
+    public ResponseEntity<Choice> addChoice(@RequestBody AddChoiceDto choiceDto){
+        questionService.addChoiceToQuestion(choiceDto.getQuestionId(), choiceDto.getChoiceText(), choiceDto.isCorrect());
+        return ResponseEntity.ok().build();
     }
 }

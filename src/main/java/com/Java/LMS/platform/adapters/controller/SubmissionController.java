@@ -83,7 +83,7 @@ public class SubmissionController {
             EmailFormateDto email = new EmailFormateDto();
             email.setTo(user.getEmail());
             email.setSubject("Your Have new grades ");
-            email.setEmailBody("Your grades are calculated successfully and your grade is: ");
+            email.setEmailBody("Your grades are calculated successfully");
             emailService.sendEmail(email);
 
             if (result) {
@@ -96,4 +96,26 @@ public class SubmissionController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
+
+    @Transactional
+    @PostMapping("/{submissionId}/update-grade")
+    public ResponseEntity<String> updateSubmissionGrade( @PathVariable long submissionId, @RequestParam  double grade) {
+
+        Optional<Submission> submissionOptional = submissionRepository.findById(submissionId);
+        if (submissionOptional.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Submission not found");
+        }
+
+        Submission submission = submissionOptional.get();
+        submission.setGrade(grade);
+
+        try {
+            submissionRepository.save(submission);
+            return ResponseEntity.ok("Submission grade updated successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
+
 }

@@ -1,8 +1,10 @@
 package com.Java.LMS.platform.service.impl;
 
 import com.Java.LMS.platform.domain.Entities.Assessment;
+import com.Java.LMS.platform.domain.Entities.Choice;
 import com.Java.LMS.platform.domain.Entities.Questions;
 import com.Java.LMS.platform.infrastructure.repository.AssessmentRepository;
+import com.Java.LMS.platform.infrastructure.repository.ChoiceRepository;
 import com.Java.LMS.platform.infrastructure.repository.QuestionRepository;
 import com.Java.LMS.platform.service.dto.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +20,9 @@ public class QuestionService {
     private QuestionRepository questionRepository;
     @Autowired
     private AssessmentRepository assessmentRepository;
+    @Autowired
+    private ChoiceRepository choiceRepository;
+
     public List<Questions> getRandomQuestions(Long assessmentId) {
         // Fetch all questions for the assessment
         List<Questions> questions = questionRepository.findByAssessmentId(assessmentId);
@@ -45,4 +50,18 @@ public class QuestionService {
         return questionRepository.findByAssessmentId(assessmentId);
     }
 
+    public void addChoiceToQuestion(Long questionId, String choiceText, boolean isCorrect) {
+        // Fetch the question
+        Questions question = questionRepository.findById(questionId)
+                .orElseThrow(() -> new ResourceNotFoundException("Question not found with ID: " + questionId));
+
+        // Create the choice
+        Choice choice = new Choice();
+        choice.setQuestion(question);
+        choice.setChoiceText(choiceText);
+        choice.setCorrect(isCorrect);
+
+        // Save the choice
+        choiceRepository.save(choice);
+    }
 }
